@@ -168,14 +168,11 @@ def _gate_suggestions() -> str:
     return "Known gates: " + ", ".join(GATES.keys()) + "."
 
 
-async def get_gate_current(
-    currents: CurrentsClient, name: str, date: str | None = None
+async def _gate_current_state(
+    currents: CurrentsClient, gate: Gate, after: datetime
 ) -> dict:
-    """Return the next 3 slack windows for a single named gate."""
-    gate = find_gate(name)
-    if gate is None:
-        return {"unmatched": True, "suggestions_display": _gate_suggestions()}
-    after = _parse_dt_arg(date)
+    """Current state for one gate: slack windows + flood/ebb sets. Shared by
+    get_gate_current (named) and currents_near (by position)."""
     events = await currents.events_for_station(gate.station_id)
     out = {
         "name": gate.name,
@@ -189,6 +186,39 @@ async def get_gate_current(
             "The currents service is unreachable — slack data unavailable right now."
         )
     return out
+
+
+async def get_gate_current(
+    currents: CurrentsClient, name: str, date: str | None = None
+) -> dict:
+    """Return the next 3 slack windows for a single named gate."""
+    gate = find_gate(name)
+    if gate is None:
+        return {"unmatched": True, "suggestions_display": _gate_suggestions()}
+    return await _gate_current_state(currents, gate, _parse_dt_arg(date))
+
+
+async def currents_near(
+    currents: CurrentsClient, lat: float, lon: float, radius_nm: float = 15.0
+) -> dict:
+    """Nearest charted tidal gates to a position, nearest-first, each with its
+    current state. For a specific named pass use get_gate_current."""
+    after = _parse_dt_arg(None)
+    ranked = sorted(
+        ((_haversine_nm(lat, lon, g.latitude, g.longitude), g) for g in GATES.values()),
+        key=lambda pair: pair[0],
+    )
+    near = [(d, g) for d, g in ranked if d <= radius_nm][:3]
+    if not near:
+        return {"gates": [],
+                "summary_display": f"No charted tidal gate within {radius_nm:.0f} "
+                                   "nautical miles."}
+    gates = []
+    for dist, gate in near:
+        state = await _gate_current_state(currents, gate, after)
+        state["distance_nm"] = round(dist, 1)
+        gates.append(state)
+    return {"gates": gates}
 
 
 def _destination_suggestions() -> str:

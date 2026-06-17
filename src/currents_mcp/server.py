@@ -13,11 +13,11 @@ from mcp.server.stdio import stdio_server
 
 from currents_mcp.currents_source import CurrentsClient
 from currents_mcp.tides_source import TidesClient
-from currents_mcp.tools import get_gate_current, get_tide_heights, list_gates, plan_passage
+from currents_mcp.tools import currents_near, get_gate_current, get_tide_heights, list_gates, plan_passage
 
 logger = logging.getLogger(__name__)
 
-TOOL_NAMES = ["plan_passage", "get_gate_current", "list_gates", "get_tide_heights"]
+TOOL_NAMES = ["plan_passage", "get_gate_current", "currents_near", "list_gates", "get_tide_heights"]
 
 # The boat's SignalK server (Pi 5). Not localhost: the mac-dev rig is retired,
 # and an unreachable /currents degrades silently to empty slack windows.
@@ -38,6 +38,11 @@ async def dispatch(
         )
     if name == "get_gate_current":
         return await get_gate_current(currents, name=args["name"], date=args.get("date"))
+    if name == "currents_near":
+        return await currents_near(
+            currents, lat=args["lat"], lon=args["lon"],
+            radius_nm=args.get("radius_nm", 15.0),
+        )
     if name == "list_gates":
         return list_gates()
     if name == "get_tide_heights":
@@ -62,7 +67,8 @@ def build_server(currents: CurrentsClient, tides: TidesClient) -> Server:
                     "'Nanaimo'), not a gate name. "
                     "Do NOT use this for the current at a single named gate or pass — "
                     "use get_gate_current instead. "
-                    "Do NOT use this to find out which gates exist — use list_gates instead."
+                    "Do NOT use this to find out which gates exist — use list_gates instead. "
+                    "For the current near your position right now, use currents_near or get_gate_current."
                 ),
                 inputSchema={
                     "type": "object",
@@ -84,7 +90,8 @@ def build_server(currents: CurrentsClient, tides: TidesClient) -> Server:
                     "Input is the gate name. Returns the next 3 slack windows and flood/ebb "
                     "set directions for that gate. "
                     "Do NOT use this for route planning to a destination — use plan_passage instead. "
-                    "Do NOT use this to enumerate available gates — use list_gates instead."
+                    "Do NOT use this to enumerate available gates — use list_gates instead. "
+                    "Do NOT use this for the current near your position when you have no gate name — use currents_near instead."
                 ),
                 inputSchema={
                     "type": "object",
@@ -96,6 +103,29 @@ def build_server(currents: CurrentsClient, tides: TidesClient) -> Server:
                 },
             ),
             types.Tool(
+                name="currents_near",
+                description=(
+                    "Use this for the current near a POSITION when you don't have a "
+                    "specific gate name — e.g. 'what are the currents doing near us?', "
+                    "'current near here'. Input is lat/lon; returns the nearest tidal "
+                    "gate(s) within a radius (default 15 nm), nearest first, each with "
+                    "slack windows and flood/ebb set. "
+                    "Do NOT use this for a SPECIFIC named pass — use get_gate_current. "
+                    "Do NOT use this for route planning to a destination — use plan_passage. "
+                    "For tide HEIGHT (high/low water) rather than current movement, use "
+                    "get_tide_heights."
+                ),
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "lat": {"type": "number", "description": "Latitude (decimal degrees)."},
+                        "lon": {"type": "number", "description": "Longitude (decimal degrees)."},
+                        "radius_nm": {"type": "number", "description": "Search radius in NM (default 15)."},
+                    },
+                    "required": ["lat", "lon"],
+                },
+            ),
+            types.Tool(
                 name="list_gates",
                 description=(
                     "Use this to discover which tidal gates and destinations are available "
@@ -103,7 +133,8 @@ def build_server(currents: CurrentsClient, tides: TidesClient) -> Server:
                     "No live current data; use this when the user asks what gates or "
                     "destinations are supported. "
                     "Do NOT use this for the current at a specific gate — use get_gate_current instead. "
-                    "Do NOT use this for route planning — use plan_passage instead."
+                    "Do NOT use this for route planning — use plan_passage instead. "
+                    "For the current near a position, use currents_near."
                 ),
                 inputSchema={"type": "object", "properties": {}},
             ),
@@ -114,7 +145,8 @@ def build_server(currents: CurrentsClient, tides: TidesClient) -> Server:
                     "Offline predictions from the boat server (signalk-tides/Neaps), "
                     "relative to LAT — chart datum sits above LAT by up to ~0.4 m at "
                     "some stations, so these read higher than official tide tables by "
-                    "that fixed offset."
+                    "that fixed offset. "
+                    "This is water LEVEL (high/low water), not current movement — for current speed/direction use get_gate_current (named pass) or currents_near (near a position)."
                 ),
                 inputSchema={
                     "type": "object",
