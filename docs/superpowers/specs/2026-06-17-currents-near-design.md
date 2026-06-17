@@ -40,7 +40,11 @@ re-measure.
   `async _gate_current(gate: Gate, currents, now) -> dict` returning set/drift,
   ebb/flood state, and the next slack windows via the existing `_slack_windows`/
   `events_for_station`/`dirs_for_station` path). `get_gate_current` is refactored
-  to call it — **behavior-preserving** (its output and tests unchanged).
+  to call it. **Refactor freely** — no customers on the MCPs, so the output
+  shape/formatting may change if it's cleaner; the only hard requirement is that
+  `get_gate_current` still answers the named-pass ask correctly (the
+  `current-boundary` eval depends on it). Update its tests to whatever the new
+  shape is rather than contorting to keep them byte-identical.
 - **`currents_near(lat, lon, radius_nm=15.0)`** (async tool):
   1. For every `gate` in `GATES`, `d = _haversine_nm(lat, lon, gate.latitude, gate.longitude)`.
   2. Keep gates with `d <= radius_nm`, sort ascending by `d`, take the nearest **≤3**.
@@ -58,6 +62,17 @@ re-measure.
   `get_gate_current`; for route planning use `plan_passage`"). Async dispatch in
   the `call_tool` handler (it awaits the currents source, like the other gate
   tools).
+- **Re-disambiguate ALL currents tool descriptions.** Adding a 5th tool risks
+  re-creating the exact ambiguity the earlier disambiguation fixed (small models
+  picking the wrong gate tool). Sharpen every currents-mcp tool description with a
+  leading "use this for…" + explicit cross-references to its siblings — the proven
+  lever: `get_gate_current` (current at a SINGLE named pass — for "near me" use
+  `currents_near`), `currents_near` (current near a position / "what's it doing near
+  us?" — for a named pass use `get_gate_current`, for a route use `plan_passage`),
+  `plan_passage` (route to a destination), `list_gates` (catalog of known gates/
+  destinations), `get_tide_heights` (water LEVEL, high/low — not current movement).
+  Add/extend a test asserting each description states its use and names its siblings
+  (mirror the pilotbook/signalk disambiguation tests).
 - **Tests** (`tests/`): nearest-first ordering + `distance_nm`; radius filter
   (a far gate excluded); empty + message when none within radius; cap at 3;
   per-gate current fields present. Mock the currents source (respx/fake) and use a
@@ -84,16 +99,22 @@ position→gate leap (esp. qwen3.5, hermes3), confirming the composed-tool lever
 again. Record deltas in ADR 0002.
 
 ## Out of scope
-- Behavior changes to `get_gate_current` / `plan_passage` / `list_gates` beyond
-  the behavior-preserving helper extraction.
+- **Not** out of scope (per 2026-06-17 direction — no MCP customers, move fast):
+  behavior changes to the existing currents tools are permitted where they help.
+  The deliberate ones here are the free helper refactor and the all-tool
+  re-disambiguation above; don't make gratuitous changes without a benefit. The
+  tool *shape* is decided: keep `get_gate_current` and `currents_near` as two
+  separate single-purpose tools (not merged/polymorphic).
 - Tide near-position — `get_tide_heights(lat, lon)` is already position-based
   (nearest station); untouched.
 - The "currents-mcp episode" content beat — already tracked in the phase-2 arc;
   not part of this build.
 
 ## Testing
-Unit (no network): the `currents_near` ordering/radius/empty/cap tests + the
-`get_gate_current` behavior-preservation check, with a mocked currents source.
+Unit (no network): the `currents_near` ordering/radius/empty/cap tests, the
+all-tool description-disambiguation test, and `get_gate_current` still correctly
+answering a named pass (its tests updated to whatever shape the refactor lands),
+all with a mocked currents source.
 Integration: the §3 live sweep is the end-to-end check (Ollama + Pi + MCP servers
 running the updated currents-mcp from its checkout). currents-mcp + naturali-agents
 suites stay green.
