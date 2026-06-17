@@ -2,6 +2,7 @@ import pytest
 import mcp.types as mcp_types
 
 from currents_mcp.currents_source import CurrentsClient
+from currents_mcp.passages import GATES
 from currents_mcp.server import DEFAULT_SIGNALK_URL, TOOL_NAMES, build_server, dispatch
 from currents_mcp.tides_source import TidesClient
 
@@ -36,7 +37,7 @@ def _tides(payload):
 
 
 def test_tool_names():
-    assert TOOL_NAMES == ["plan_passage", "get_gate_current", "list_gates", "get_tide_heights"]
+    assert TOOL_NAMES == ["plan_passage", "get_gate_current", "currents_near", "list_gates", "get_tide_heights"]
 
 
 async def test_tool_descriptions_disambiguate():
@@ -80,6 +81,13 @@ async def test_tool_descriptions_disambiguate():
     assert "plan_passage" in lg, (
         "list_gates description must cross-reference plan_passage"
     )
+
+    cn = descs["currents_near"]
+    assert "get_gate_current" in cn and "plan_passage" in cn  # names its siblings
+    assert "currents_near" in descs["get_gate_current"]       # gate tool points to near
+    assert "currents_near" in descs["list_gates"]
+    assert "currents_near" in descs["plan_passage"]
+    assert "currents_near" in descs["get_tide_heights"]
 
 
 def test_default_signalk_url_targets_the_boat():
@@ -128,3 +136,14 @@ async def test_dispatch_get_tide_heights():
     )
     assert result["station_name"] == "Montague Harbour BC"
     assert [e["type"] for e in result["events"]] == ["high", "low", "high", "low"]
+
+
+async def test_dispatch_currents_near():
+    # Smoke test: dispatch routes to currents_near and returns the gates shape.
+    dodd = GATES["Dodd Narrows"]
+    result = await dispatch(
+        _currents(CURRENTS_PAYLOAD), _tides(TIDES_PAYLOAD),
+        "currents_near", {"lat": dodd.latitude + 0.01, "lon": dodd.longitude + 0.01},
+    )
+    assert "gates" in result
+    assert isinstance(result["gates"], list)
