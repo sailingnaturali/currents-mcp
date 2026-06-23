@@ -12,6 +12,7 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
 from currents_mcp.currents_source import CurrentsClient
+from currents_mcp.netutil import resolve_local_host
 from currents_mcp.tides_source import TidesClient
 from currents_mcp.tools import currents_near, get_gate_current, get_tide_heights, list_gates, plan_passage
 
@@ -169,7 +170,7 @@ def build_server(currents: CurrentsClient, tides: TidesClient) -> Server:
 
 
 def main() -> None:
-    signalk_url = os.environ.get("SIGNALK_URL", DEFAULT_SIGNALK_URL)
+    signalk_url = resolve_local_host(os.environ.get("SIGNALK_URL", DEFAULT_SIGNALK_URL))
     currents = CurrentsClient(signalk_url)
     tides = TidesClient(signalk_url)
     server = build_server(currents, tides)
