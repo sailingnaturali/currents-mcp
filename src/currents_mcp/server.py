@@ -11,8 +11,9 @@ import mcp.types as types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
+from naturali_mcp_netutil import resolve_local_host
+
 from currents_mcp.currents_source import CurrentsClient
-from currents_mcp.netutil import resolve_local_host
 from currents_mcp.tides_source import TidesClient
 from currents_mcp.tools import currents_near, get_gate_current, get_tide_heights, list_gates, plan_passage
 
