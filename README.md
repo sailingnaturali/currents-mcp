@@ -125,11 +125,11 @@ Current speeds in knots. Heights in metres. Times rendered in America/Vancouver 
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SIGNALK_URL` | `http://naturalaspi.local:3000` | Base URL of the SignalK server running `signalk-currents` and `signalk-tides`; the gate tools GET `/signalk/v2/api/resources/currents` and the height tool GETs `/signalk/v2/api/tides/extremes` from here |
+| `SIGNALK_URL` | `http://naturalaspi:3000` | Base URL of the SignalK server running `signalk-currents` and `signalk-tides`; the gate tools GET `/signalk/v2/api/resources/currents` and the height tool GETs `/signalk/v2/api/tides/extremes` from here |
 
 ## Run
 
-    SIGNALK_URL=http://naturalaspi.local:3000 uv run currents-mcp
+    SIGNALK_URL=http://naturalaspi:3000 uv run currents-mcp
 
 ## Test
 

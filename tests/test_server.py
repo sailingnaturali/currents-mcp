@@ -94,7 +94,7 @@ def test_default_signalk_url_targets_the_boat():
     """The mac-dev rig is retired — nothing answers on localhost:3000, and the
     fetch degrades silently to empty windows, so a wrong default looks like
     'no slack windows' rather than an error."""
-    assert DEFAULT_SIGNALK_URL == "http://naturalaspi.local:3000"
+    assert DEFAULT_SIGNALK_URL == "http://naturalaspi:3000"
 
 
 async def test_build_server_names_it():

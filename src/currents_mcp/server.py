@@ -23,7 +23,7 @@ TOOL_NAMES = ["plan_passage", "get_gate_current", "currents_near", "list_gates",
 
 # The boat's SignalK server (Pi 5). Not localhost: the mac-dev rig is retired,
 # and an unreachable /currents degrades silently to empty slack windows.
-DEFAULT_SIGNALK_URL = "http://naturalaspi.local:3000"
+DEFAULT_SIGNALK_URL = "http://naturalaspi:3000"
 
 
 async def dispatch(
