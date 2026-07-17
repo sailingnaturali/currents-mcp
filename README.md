@@ -107,10 +107,10 @@ the next ~4 events at/after the query time are returned.
 
 **Named tidal gates** (resolvable via `get_gate_current`):
 
-- BC: Dodd Narrows, Active Pass, Porlier Pass, Gabriola Passage, Seymour Narrows, Beazley Passage (Surge Narrows), Hole in the Wall, Gillard Passage, Dent Rapids.
+- BC: Dodd Narrows, Active Pass, Porlier Pass, Gabriola Passage, Seymour Narrows, Beazley Passage (Surge Narrows), Hole in the Wall, Gillard Passage, Dent Rapids, Arran Rapids, Race Passage, Juan de Fuca - East, Tillicum Bridge, Calamity Point, Second Narrows, Sechelt Rapids.
 - US: Boundary Pass (San Juans / Friday Harbor).
 
-Active Pass, Porlier Pass, Gabriola Passage, and Hole in the Wall are addressable by name but are not yet wired into any Victoria-origin passage.
+Active Pass, Porlier Pass, Gabriola Passage, Hole in the Wall, Arran Rapids, Race Passage, Juan de Fuca - East, Tillicum Bridge, Calamity Point, Second Narrows, and Sechelt Rapids are addressable by name but are not yet wired into any Victoria-origin passage.
 
 The gate-to-station mapping lives in `passages.py`; the `signalk-currents` plugin must be configured with the matching station list so every gate's `station_id` is present in `/currents`. A gate whose station is missing from the payload returns no slack windows.
 

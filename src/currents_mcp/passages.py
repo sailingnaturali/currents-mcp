@@ -1,6 +1,8 @@
 """Static passage database: destinations -> ordered tidal gates -> current stations.
 
-Gate station IDs + coordinates verified against the live CHS IWLS API 2026-05-24.
+Gate station IDs + coordinates verified against the live CHS IWLS API 2026-05-24
+(Salish Sea core gates added 2026-07-17: Race Passage, Juan de Fuca - East,
+Tillicum Bridge, Calamity Point, Second Narrows, Sechelt Rapids).
 Routing validated against PNW cruising sources (48 North, Waggoner, Canadian
 Boating). Open-water destinations have empty gate lists by design.
 """
@@ -40,6 +42,12 @@ _GATE_LIST = [
     Gate("Gillard Passage", "chs", "5dd3064fe0fdc4b9b4be6978", 50.3933, -125.1567, 20),
     Gate("Dent Rapids", "chs", "63af06d56a2b9417c0353451", 50.4100, -125.2117, 20),
     Gate("Arran Rapids", "chs", "63aeff5884e5432cd3b71283", 50.4200, -125.1400, 20),
+    Gate("Race Passage", "chs", "63aeee896a2b9417c034d337", 48.3067, -123.5367, 30),
+    Gate("Juan de Fuca - East", "chs", "63aeee1d84e5432cd3b6c500", 48.2317, -123.5300, 60),
+    Gate("Tillicum Bridge", "chs", "64960066ebd87908f1fcb787", 48.4464, -123.4002, 20),
+    Gate("Calamity Point", "chs", "5cebf1e43d0f4a073c4bc434", 49.3126, -123.1277, 30),
+    Gate("Second Narrows", "chs", "5dd30650e0fdc4b9b4be6c2d", 49.2947, -123.0245, 30),
+    Gate("Sechelt Rapids", "chs", "63aef40a6a2b9417c0350313", 49.7383, -123.8983, 20),
     Gate("Boundary Pass", "noaa", "PUG1717", 48.6912, -123.2450, 30, noaa_bin=35),
 ]
 
@@ -51,6 +59,11 @@ GATES: dict[str, Gate] = {g.name: g for g in _GATE_LIST}
 # Strait/Vancouver side; Hole in the Wall is an alternate Discovery Islands gate;
 # Arran is the Bute Inlet entrance north of Stuart Island (the Cordero route runs
 # Gillard→Dent). Wire passages for them if/when a routing direction is confirmed.
+# Same holds for the Salish Sea core gates added 2026-07-17 (Race Passage,
+# Juan de Fuca - East, Tillicum Bridge, Calamity Point, Second Narrows, Sechelt
+# Rapids): each is looked up by name, but no destination in this DB routes
+# through one yet (no Sooke/west-coast, Vancouver-harbour, or Sechelt-Inlet
+# passage exists). Add PASSAGES entries when a routed destination is added.
 PASSAGES: tuple[Passage, ...] = (
     Passage("Nanaimo", ("nanaimo", "newcastle island"),
             ("Dodd Narrows",), "Protected inside route; Dodd is the final gate."),
