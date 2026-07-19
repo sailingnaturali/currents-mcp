@@ -46,3 +46,46 @@
   aliases: [friday harbor, friday harbour, san juan islands, san juans]
   gates: [Boundary Pass]
   route_note: US waters; NOAA provider.
+
+- destination: Sechelt Inlet
+  aliases: [sechelt inlet, sechelt, egmont, skookumchuck, storm bay]
+  gates: [Sechelt Rapids]
+  route_note: >-
+    Skookumchuck Narrows is the only way in. Slack only — no working the eddies
+    at 16 knots.
+
+- destination: Bute Inlet
+  aliases: [bute inlet, bute, waddington harbour]
+  gates: [Arran Rapids]
+  route_note: >-
+    Arran is the direct gate off Stuart Island, and the violent one; the
+    Yuculta-Gillard-Dent line into Cordero is the usual alternative.
+
+- destination: Okisollo Channel
+  aliases: [okisollo, okisollo channel, hole in the wall, upper rapids]
+  gates: [Hole in the Wall]
+  route_note: >-
+    Northern Discovery Islands route; slack window is minutes, not tens of
+    minutes.
+
+- destination: Vancouver
+  aliases: [vancouver, coal harbour, false creek, english bay, first narrows]
+  gates: [Calamity Point]
+  route_note: First Narrows under Lions Gate; the ebb runs hard against inbound traffic.
+
+- destination: Indian Arm
+  aliases: [indian arm, port moody, deep cove, burrard inlet]
+  gates: [Calamity Point, Second Narrows]
+  route_note: Both Burrard Inlet narrows; Second Narrows is the tighter of the two.
+
+- destination: Gorge Waterway
+  aliases: [gorge waterway, the gorge, portage inlet, tillicum]
+  gates: [Tillicum Bridge]
+  route_note: Above Victoria Harbour; the Gorge reverses at the Tillicum narrows.
+
+- destination: Sooke and West Juan de Fuca
+  aliases: [sooke, sooke basin, port renfrew, west juan de fuca, juan de fuca]
+  gates: [Race Passage, Juan de Fuca - East]
+  route_note: >-
+    Westbound from Victoria past Race Rocks; time Race Passage off the current
+    station, not the tide tables.

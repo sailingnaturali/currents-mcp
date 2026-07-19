@@ -129,6 +129,16 @@ def _load(root: Path) -> tuple[dict[str, Gate], tuple[Passage, ...]]:
             gate_names=names,
             route_note=entry.get("route_note", ""),
         ))
+
+    # match_destination is first-wins, so a duplicate alias silently shadows a
+    # later destination. Fail loudly instead.
+    seen: dict[str, str] = {}
+    for p in passages:
+        for key in {p.destination.lower(), *p.aliases}:
+            if key in seen:
+                raise ValueError(f"destinations.yaml: {key!r} claimed by both "
+                                 f"{seen[key]!r} and {p.destination!r}")
+            seen[key] = p.destination
     return gates, tuple(passages)
 
 

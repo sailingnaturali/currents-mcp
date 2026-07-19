@@ -1,4 +1,6 @@
-from currents_mcp.passages import GATES, find_gate, match_destination, coverage
+import pytest
+
+from currents_mcp.passages import GATES, _load, find_gate, match_destination, coverage
 
 
 def test_known_gate_has_chs_station():
@@ -45,3 +47,20 @@ def test_coverage_lists_destinations_and_gates():
     cov = coverage()
     names = {c["destination"] for c in cov}
     assert "Nanaimo" in names and "Friday Harbor" in names
+
+
+def test_new_destinations_route_through_their_gates():
+    assert match_destination("skookumchuck").gate_names == ("Sechelt Rapids",)
+    assert match_destination("deep cove").gate_names == ("Calamity Point", "Second Narrows")
+    assert match_destination("sooke").gate_names == ("Race Passage", "Juan de Fuca - East")
+
+
+def test_duplicate_alias_across_destinations_is_rejected(tmp_path):
+    # match_destination is first-wins, so a shadowed alias would fail silently.
+    (tmp_path / "passes").mkdir()
+    (tmp_path / "destinations.yaml").write_text(
+        "- destination: A\n  aliases: [shared]\n  gates: []\n"
+        "- destination: B\n  aliases: [shared]\n  gates: []\n"
+    )
+    with pytest.raises(ValueError, match="claimed by both"):
+        _load(tmp_path)
