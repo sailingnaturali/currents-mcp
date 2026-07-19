@@ -87,8 +87,10 @@ async def test_get_gate_current_surfaces_flood_hazards():
 
 async def test_get_gate_current_omits_hazards_when_none():
     """Gates without curated notes carry no hazard keys — no empty noise."""
+    from currents_mcp.passages import GATES
+    plain = next(g for g in GATES.values() if not g.hazards)
     currents = _client(PAYLOAD)
-    result = await get_gate_current(currents, "Dodd Narrows", date="2026-05-24")
+    result = await get_gate_current(currents, plain.name, date="2026-05-24")
     assert "hazards" not in result
     assert "hazards_display" not in result
 
