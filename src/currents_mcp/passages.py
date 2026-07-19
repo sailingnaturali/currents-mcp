@@ -51,8 +51,11 @@ class Passage:
 
 
 def vault_path() -> Path:
-    """Resolve the currents-vault directory: CURRENTS_VAULT_PATH, else
-    ~/.currents-vault, else the sibling repo (in-tree dev)."""
+    """Resolve the currents-vault directory, preferring the canonical external
+    copy so live edits take effect: CURRENTS_VAULT_PATH, else ~/.currents-vault,
+    else the sibling repo (in-tree dev), else the snapshot bundled with this
+    package. The bundle guarantees the server runs standalone; keep it in sync
+    with github.com/sailingnaturali/currents-vault (enforced by the drift test)."""
     env = os.environ.get("CURRENTS_VAULT_PATH")
     if env:
         return Path(env).expanduser()
@@ -62,11 +65,7 @@ def vault_path() -> Path:
     sibling = Path(__file__).resolve().parents[3] / "currents-vault"
     if sibling.is_dir():
         return sibling
-    raise FileNotFoundError(
-        "currents-vault not found. Clone it to ~/.currents-vault or set "
-        "CURRENTS_VAULT_PATH to its path "
-        "(https://github.com/sailingnaturali/currents-vault)."
-    )
+    return Path(__file__).parent / "_vault"
 
 
 def _parse_frontmatter(path: Path) -> dict:
