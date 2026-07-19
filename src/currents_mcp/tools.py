@@ -168,6 +168,23 @@ def _gate_suggestions() -> str:
     return "Known gates: " + ", ".join(GATES.keys()) + "."
 
 
+_HAZARD_LABEL = {"flood": "On the flood", "ebb": "On the ebb", "any": "Any tide"}
+
+
+def _gate_hazards(gate: Gate) -> dict:
+    """Flood/ebb hazard notes for a gate — whirlpools, holes, sets, deflections,
+    each labelled with the current state it applies to. Empty for gates with no
+    curated notes yet, so callers can spread it unconditionally."""
+    if not gate.hazards:
+        return {}
+    return {
+        "hazards": [{"state": h.state, "text": h.text} for h in gate.hazards],
+        "hazards_display": " ".join(
+            f"{_HAZARD_LABEL[h.state]}: {h.text}" for h in gate.hazards
+        ),
+    }
+
+
 async def _gate_current_state(
     currents: CurrentsClient, gate: Gate, after: datetime
 ) -> dict:
@@ -179,6 +196,7 @@ async def _gate_current_state(
         "slack_windows": _slack_windows(events, 3, after),
         "transit_window_minutes": gate.transit_window_minutes,
         **_gate_sets(await currents.dirs_for_station(gate.station_id)),
+        **_gate_hazards(gate),
     }
     if not events and currents.unreachable:
         # Empty because the service is down, not because there's no data (R1).
@@ -267,6 +285,7 @@ async def plan_passage(
             "slack_windows": _slack_windows(events, 3, eta if idx else depart),
             "transit_window_minutes": gate.transit_window_minutes,
             **_gate_sets(await currents.dirs_for_station(gate.station_id)),
+            **_gate_hazards(gate),
         }
         if idx == 0:
             entry["recommended_depart_display"] = (

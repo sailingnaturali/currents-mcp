@@ -112,12 +112,15 @@ the next ~4 events at/after the query time are returned.
 
 Active Pass, Porlier Pass, Gabriola Passage, Hole in the Wall, Arran Rapids, Race Passage, Juan de Fuca - East, Tillicum Bridge, Calamity Point, Second Narrows, and Sechelt Rapids are addressable by name but are not yet wired into any Victoria-origin passage.
 
-The gate-to-station mapping lives in `passages.py`; the `signalk-currents` plugin must be configured with the matching station list so every gate's `station_id` is present in `/currents`. A gate whose station is missing from the payload returns no slack windows.
+The gate-to-station mapping and per-gate hazard notes live in the [`currents-vault`](https://github.com/sailingnaturali/currents-vault) (one markdown file per pass + a `destinations.yaml` routing table), loaded at startup; the `signalk-currents` plugin must be configured with the matching station list so every gate's `station_id` is present in `/currents`. A gate whose station is missing from the payload returns no slack windows.
+
+Gates with curated hazard notes (the northern rapids — Gillard, Dent, Beazley, Seymour) return a `hazards` list and a state-first `hazards_display` from `get_gate_current`, `currents_near`, and `plan_passage` — whirlpools, holes, sets, and deflections labelled by the current state (flood/ebb) they occur in.
 
 ## Data sources
 
 - `signalk-currents` plugin `/currents` resource (CHS `wcp1-events` BC + NOAA CO-OPS US, fetched/cached by the plugin) — tidal gate slack windows
 - `signalk-tides` plugin `/signalk/v2/api/tides/extremes` (offline Neaps engine, no internet) — tide heights
+- [`currents-vault`](https://github.com/sailingnaturali/currents-vault) — gate station identity + flood/ebb hazard notes and destination routing (loaded from disk, no internet)
 
 Current speeds in knots. Heights in metres. Times rendered in America/Vancouver (PDT/PST).
 
@@ -126,6 +129,7 @@ Current speeds in knots. Heights in metres. Times rendered in America/Vancouver 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SIGNALK_URL` | `http://naturalaspi:3000` | Base URL of the SignalK server running `signalk-currents` and `signalk-tides`; the gate tools GET `/signalk/v2/api/resources/currents` and the height tool GETs `/signalk/v2/api/tides/extremes` from here |
+| `CURRENTS_VAULT_PATH` | `~/.currents-vault` | Path to the [`currents-vault`](https://github.com/sailingnaturali/currents-vault) data directory. Falls back to a sibling `../currents-vault` checkout for in-tree development |
 
 ## Run
 

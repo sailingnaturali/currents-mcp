@@ -1,0 +1,48 @@
+# Destination routing: aliases + ordered tidal gates + a one-line route note.
+# Gate names must match a passes/<slug>.md `name`. Open-water destinations
+# have an empty gates list by design.
+
+- destination: Nanaimo
+  aliases: [nanaimo, newcastle island]
+  gates: [Dodd Narrows]
+  route_note: Protected inside route; Dodd is the final gate.
+
+- destination: Gulf Islands
+  aliases: [gulf islands, salt spring, salt spring island, ganges, montague harbour, montague]
+  gates: []
+  route_note: Inside from the south; no significant gate (Sansum is minor).
+
+- destination: Desolation Sound
+  aliases: [desolation sound, desolation, prideaux haven]
+  gates: []
+  route_note: Open Strait of Georgia; entrance ungated.
+
+- destination: Cortes Island
+  aliases: [cortes island, cortes, gorge harbour, squirrel cove]
+  gates: []
+  route_note: Open Strait of Georgia approach.
+
+- destination: Campbell River
+  aliases: [campbell river]
+  gates: []
+  route_note: Open Strait of Georgia; Seymour Narrows is north of town.
+
+- destination: Discovery Islands
+  aliases: [discovery islands, surge narrows, octopus islands]
+  gates: [Beazley Passage]
+  route_note: Inside via Hoskyn Channel; Beazley is the channel through Surge Narrows.
+
+- destination: Johnstone Strait via Discovery Passage
+  aliases: [discovery passage, johnstone strait, broughtons]
+  gates: [Seymour Narrows]
+  route_note: Discovery Passage north; the gate beyond Campbell River.
+
+- destination: Cordero Channel
+  aliases: [cordero channel, yuculta rapids, dent rapids, blind channel]
+  gates: [Gillard Passage, Dent Rapids]
+  route_note: Inside route beyond Desolation; transit both on one slack.
+
+- destination: Friday Harbor
+  aliases: [friday harbor, friday harbour, san juan islands, san juans]
+  gates: [Boundary Pass]
+  route_note: US waters; NOAA provider.

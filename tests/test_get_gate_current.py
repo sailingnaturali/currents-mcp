@@ -75,6 +75,24 @@ async def test_get_gate_current_trusted_dirs_stay_unqualified():
     )
 
 
+async def test_get_gate_current_surfaces_flood_hazards():
+    """A gate with curated hazards reports them, labelled by current state."""
+    currents = _client(PAYLOAD)
+    result = await get_gate_current(currents, "Gillard Passage", date="2026-05-24")
+    states = {h["state"] for h in result["hazards"]}
+    assert "flood" in states
+    assert "whirlpool" in result["hazards_display"].lower()
+    assert "On the flood" in result["hazards_display"]
+
+
+async def test_get_gate_current_omits_hazards_when_none():
+    """Gates without curated notes carry no hazard keys — no empty noise."""
+    currents = _client(PAYLOAD)
+    result = await get_gate_current(currents, "Dodd Narrows", date="2026-05-24")
+    assert "hazards" not in result
+    assert "hazards_display" not in result
+
+
 async def test_get_gate_current_unknown_name_suggests():
     currents = _client(PAYLOAD)
     result = await get_gate_current(currents, "Nowhere Narrows")
