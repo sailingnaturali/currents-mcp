@@ -1,6 +1,6 @@
 [project]
 name = "currents-mcp"
-version = "0.5.2"
+version = "0.5.3"
 description = "MCP server exposing PNW tidal-gate slack windows as agent tools"
 readme = "README.md"
 license = "MIT"
