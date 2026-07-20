@@ -33,9 +33,18 @@
   route_note: Inside via Hoskyn Channel; Beazley is the channel through Surge Narrows.
 
 - destination: Johnstone Strait via Discovery Passage
-  aliases: [discovery passage, johnstone strait, broughtons]
-  gates: [Seymour Narrows]
-  route_note: Discovery Passage north; the gate beyond Campbell River.
+  aliases: [discovery passage, johnstone strait]
+  gates: [Seymour Narrows, Johnstone Strait - Central]
+  route_note: >-
+    Discovery Passage north past Campbell River, then the strait itself. Work
+    the ebb westbound and start early — the summer westerly builds after noon.
+
+- destination: Broughton Archipelago
+  aliases: [broughtons, broughton archipelago, blackfish sound, echo bay, port mcneill]
+  gates: [Seymour Narrows, Johnstone Strait - Central, Blackney Passage]
+  route_note: >-
+    Up Johnstone Strait, then Blackney into Blackfish Sound. Blackney slack
+    references Seymour Narrows, not the strait.
 
 - destination: Cordero Channel
   aliases: [cordero channel, yuculta rapids, dent rapids, blind channel]
@@ -70,12 +79,12 @@
 
 - destination: Vancouver
   aliases: [vancouver, coal harbour, false creek, english bay, first narrows]
-  gates: [Calamity Point]
+  gates: [First Narrows]
   route_note: First Narrows under Lions Gate; the ebb runs hard against inbound traffic.
 
 - destination: Indian Arm
   aliases: [indian arm, port moody, deep cove, burrard inlet]
-  gates: [Calamity Point, Second Narrows]
+  gates: [First Narrows, Second Narrows]
   route_note: Both Burrard Inlet narrows; Second Narrows is the tighter of the two.
 
 - destination: Gorge Waterway

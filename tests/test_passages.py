@@ -51,7 +51,7 @@ def test_coverage_lists_destinations_and_gates():
 
 def test_new_destinations_route_through_their_gates():
     assert match_destination("skookumchuck").gate_names == ("Sechelt Rapids",)
-    assert match_destination("deep cove").gate_names == ("Calamity Point", "Second Narrows")
+    assert match_destination("deep cove").gate_names == ("First Narrows", "Second Narrows")
     assert match_destination("sooke").gate_names == ("Race Passage", "Juan de Fuca - East")
 
 

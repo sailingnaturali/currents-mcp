@@ -1,9 +1,9 @@
 ---
-name: Calamity Point
+name: First Narrows
 provider: chs
-station_id: 5cebf1e43d0f4a073c4bc434
-latitude: 49.3126
-longitude: -123.1277
+station_id: 5dd30650e0fdc4b9b4be6d24
+latitude: 49.3160
+longitude: -123.1401
 transit_window_minutes: 30
 hazards:
   - state: any
@@ -46,7 +46,7 @@ hazards:
 ---
 First Narrows is the gate under the Lions Gate Bridge between Prospect Point and
 the Capilano flats — the only way into Vancouver Harbour from English Bay. Flood
-sets 130 true into the harbour, ebb 305 true out.
+sets 135 true into the harbour, ebb 315 true out.
 
 Treat it as a working commercial gate rather than a tidal rapid: a single-lane
 channel under active port traffic control, where a cruising sailboat transits
@@ -54,6 +54,12 @@ under power by rule, not by preference. The classic small-boat trap is the ebb
 front off the Capilano River mouth, where a 4-knot north-shore stream shears
 against near-slack water. Approaching from the west, the English Bay anchorages
 are for deep-sea vessels that may get underway without warning.
+
+Station note: this gate uses the CHS First Narrows station (code 07721), which
+sits at the bridge and is the station PAC201 cites for slack and maximum-current
+predictions here. It replaced Calamity Point (code 07717), which lies about
+0.4 mile east of the bridge — Calamity Point remains the name of the headland and
+its shoal, but the current predictions now come from the narrows itself.
 
 Source confidence: high — CHS Sailing Directions PAC201 (2024/05) Ch. 5 and the
 Vancouver Fraser Port Authority Port Information Guide, both primary. No primary

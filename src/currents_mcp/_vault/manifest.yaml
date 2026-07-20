@@ -1,0 +1,111 @@
+# Provenance for the currents-vault gate + hazard data.
+# Station identity comes from public government current-prediction services;
+# hazard prose is paraphrased from cruising references (no verbatim text).
+sources:
+  - title: CHS Integrated Water Level System (IWLS) API
+    url: https://api-sine.dfo-mpo.gc.ca/api/v1
+    used_for: >-
+      Station IDs, coordinates, and flood/ebb set directions for BC tidal gates.
+    verified: '2026-05-24'
+    license: Government of Canada — Open Government Licence – Canada
+  - title: NOAA CO-OPS Tidal Current Predictions
+    url: https://tidesandcurrents.noaa.gov/
+    used_for: US gate (Boundary Pass) station and current bin.
+    license: US Government work — public domain
+  - title: '48°North — "Transiting the Passes to Get You Beyond Desolation Sound"'
+    url: https://48north.com/cruising/cruising-technique/transiting-the-passes-to-get-you-beyond-desolation-sound/
+    used_for: >-
+      Northern-rapids hazard notes — Gillard/Yuculta, Dent, Beazley (Surge
+      Narrows), Seymour Narrows. Facts paraphrased, no verbatim text.
+    license: Editorial — used under fair-use paraphrase, no text reproduced
+  - title: CHS Sailing Directions PAC201 — Juan de Fuca Strait and Strait of Georgia
+    url: https://waves-vagues.dfo-mpo.gc.ca/library-bibliotheque/chs-shc-PAC201-eng-202405-41244539.pdf
+    used_for: >-
+      Primary hazard/timing/peak-speed source for Dodd Narrows, Active Pass,
+      Porlier Pass, Gabriola Passage, Sechelt Rapids (Skookumchuck), and Race
+      Passage / Race Rocks. Also the primary source for Calamity Point (First
+      Narrows), Second Narrows (both bridges and the lift-span signals),
+      Tillicum Bridge (Gorge clearances, 6-knot maximum, Portage Inlet tidal
+      anomaly), Boundary Pass, and Juan de Fuca - East.
+    verified: '2024-05'
+    license: Government of Canada — reproducible under the Open Government Licence – Canada
+  - title: CHS Sailing Directions PAC202 — Discovery Passage to Queen Charlotte Strait
+    url: https://waves-vagues.dfo-mpo.gc.ca/library-bibliotheque/chs-shc-PAC202-eng-202307-41120188.pdf
+    used_for: >-
+      Primary source for the northern gates — Weynton Passage (6-knot streams,
+      Stephenson Islet and Weynton Island foul ground, Pearse Passage),
+      Blackney Passage (Cracroft Point races, Bell Rocks circulation), and
+      Johnstone Strait - Central (ebb dominance and residual flow, the
+      Kelsey Bay–Port Neville rip caution, cross-channel variation, traffic
+      separation scheme, Robson Bight).
+    verified: '2023-07'
+    license: Government of Canada — reproducible under the Open Government Licence – Canada
+    note: >-
+      A 2025/02 edition exists and has not been diffed against this one.
+  - title: DFO Pacific Marine Science Report 81-22 — Tidal Currents in Johnstone Strait
+    url: https://waves-vagues.dfo-mpo.gc.ca/Library/58804.pdf
+    used_for: >-
+      Blackney Passage slack offsets — why its slack references Seymour Narrows
+      rather than surface slack in Johnstone Strait.
+    license: Government of Canada — Open Government Licence – Canada
+  - title: Fisheries and Oceans Canada — Watching marine wildlife
+    url: https://www.dfo-mpo.gc.ca/species-especes/mammals-mammiferes/watching-observation/index-eng.html
+    used_for: >-
+      Killer whale approach distances for the northern gates — the 200 m rule
+      that applies there, and the geographic bound of the 1,000 m Southern
+      Resident distance, which does not reach them.
+    license: Government of Canada — Open Government Licence – Canada
+  - title: US Coast Pilot 10, Chapter 7 (NOAA)
+    url: https://nauticalcharts.noaa.gov/publications/coast-pilot/files/cp10/CPB10_C07_WEB.pdf
+    used_for: >-
+      US-side primary source for Boundary Pass (Turn Point, Rosenfeld Rock,
+      Skipjack, Patos) and Juan de Fuca - East (fog climatology, sea breeze,
+      gale frequency, ebb set along the south shore).
+    verified: '2026-07-12'
+    license: US Government work — public domain
+    note: >-
+      Chapter renumbering — this material was Coast Pilot 7 Chapter 12 in older
+      editions and is now Coast Pilot 10 Chapter 7.
+  - title: Vancouver Fraser Port Authority — Port Information Guide
+    url: https://www.portvancouver.com/sites/default/files/2024-08/2024-01-15-PORT-INFORMATION-GUIDE.pdf
+    used_for: >-
+      First Narrows traffic control zone rules for Calamity Point — single-lane
+      channel, the prohibition on sail and paddle propulsion, speed limits, and
+      small-craft obligations around commercial traffic.
+    verified: '2025-02'
+    license: Port authority publication — paraphrased, no text reproduced
+  - title: Capital Regional District — Gorge Waterway
+    url: https://www.crd.ca/environment/stormwater-watersheds-harbours/harbours/gorge-waterway
+    used_for: >-
+      Tillicum Bridge context — average depth under 5 m, reversing tidal falls,
+      Migratory Bird Sanctuary speed and wake restrictions.
+    license: Municipal government publication — paraphrased
+  - title: Race Rocks Ecological Reserve — tidal currents at Race Rocks
+    url: https://racerocks.ca/tidal-currents-and-current-measurement-at-race-rocks/
+    used_for: Corroborating Race Rocks hazard geography and measured current peaks.
+    license: Editorial — used under fair-use paraphrase, no text reproduced
+  - title: 'Wikipedia — "Cordero Channel"'
+    url: https://en.wikipedia.org/wiki/Cordero_Channel
+    used_for: >-
+      Arran Rapids qualitative hazard/history (whirlpools, boils; medium
+      confidence, no primary peak-speed data). See the pass file's confidence note.
+    license: CC BY-SA — paraphrased
+  - title: '48°North — "Passes of the Gulf Islands"'
+    url: https://48north.com/instructional/seamanship-and-navigation/passes-of-the-gulf-islands/
+    used_for: >-
+      State-specific hazard + traffic detail for Dodd, Active Pass, Porlier,
+      Gabriola. Facts paraphrased, no verbatim text.
+    license: Editorial — used under fair-use paraphrase, no text reproduced
+  - title: 'Canadian Boating — "BC Tidal Passes Part 1: Passes of the Gulf Islands"'
+    url: https://canadianboating.ca/destinations/bc-tidal-passes-part-1-passes-of-the-gulf-islands/
+    used_for: Corroborating Gulf Islands pass hazards and traffic notes.
+    license: Editorial — used under fair-use paraphrase, no text reproduced
+  - title: 'Pacific Yachting — "Navigating the BC Coast"'
+    url: https://www.pacificyachting.com/navigating-the-bc-coast/
+    used_for: >-
+      Hole in the Wall whirlpool/current detail (secondary; confidence noted in
+      the pass file).
+    license: Editorial — used under fair-use paraphrase, no text reproduced
+  - title: Waggoner Cruising Guide; Canadian Boating
+    used_for: Route and gate validation (PNW cruising references).
+    license: Editorial — fact validation only
