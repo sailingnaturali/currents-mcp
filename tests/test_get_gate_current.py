@@ -85,10 +85,17 @@ async def test_get_gate_current_surfaces_flood_hazards():
     assert "On the flood" in result["hazards_display"]
 
 
-async def test_get_gate_current_omits_hazards_when_none():
-    """Gates without curated notes carry no hazard keys — no empty noise."""
-    from currents_mcp.passages import GATES
-    plain = next(g for g in GATES.values() if not g.hazards)
+async def test_get_gate_current_omits_hazards_when_none(monkeypatch):
+    """Gates without curated notes carry no hazard keys — no empty noise.
+
+    Uses a synthetic gate rather than hunting the vault for a hazard-free one:
+    every real gate now carries hazards, and the behaviour still needs covering.
+    """
+    from currents_mcp.passages import GATES, Gate
+    plain = Gate(name="Testless Narrows", provider="chs",
+                 station_id="63aef1866a2b9417c035030f",  # Dodd's, so PAYLOAD resolves
+                 latitude=49.1344, longitude=-123.8171, transit_window_minutes=30)
+    monkeypatch.setitem(GATES, plain.name, plain)
     currents = _client(PAYLOAD)
     result = await get_gate_current(currents, plain.name, date="2026-05-24")
     assert "hazards" not in result
