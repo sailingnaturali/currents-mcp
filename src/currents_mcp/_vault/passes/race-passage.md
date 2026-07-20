@@ -1,5 +1,5 @@
 ---
-name: Race Rocks
+name: Race Passage
 provider: chs
 station_id: 63aeee896a2b9417c034d337
 latitude: 48.3067
@@ -27,7 +27,9 @@ low water (the offshore stream can turn 2 to 3 hours later), so time it from the
 current-station slack, not the tide tables; slack narrows to a few minutes at
 strong flows.
 
-Naming: CHS calls this station Race Passage (code 07090), and the inshore channel
-itself is Race Passage on the chart. The gate is named Race Rocks here because
-Johnstone Strait has its own Race Passage — and a Current Passage — about 200 nm
-northwest, and two gates sharing a name would collide.
+Disambiguation: this is the Juan de Fuca Race Passage, the inshore channel past
+Race Rocks off Victoria — CHS station code 07090. Johnstone Strait has its own
+Race Passage, and a Current Passage, about 200 nm northwest. Neither northern
+pass has a CHS current station, so no gate collides today; if one is ever added,
+the loader rejects the duplicate name rather than silently dropping a gate, and
+the two will need distinguishing at that point.

@@ -52,7 +52,7 @@ def test_coverage_lists_destinations_and_gates():
 def test_new_destinations_route_through_their_gates():
     assert match_destination("skookumchuck").gate_names == ("Sechelt Rapids",)
     assert match_destination("deep cove").gate_names == ("First Narrows", "Second Narrows")
-    assert match_destination("sooke").gate_names == ("Race Rocks", "Juan de Fuca - East")
+    assert match_destination("sooke").gate_names == ("Race Passage", "Juan de Fuca - East")
 
 
 def test_duplicate_alias_across_destinations_is_rejected(tmp_path):
