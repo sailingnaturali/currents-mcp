@@ -111,8 +111,16 @@ def _load(root: Path) -> tuple[dict[str, Gate], tuple[Passage, ...]]:
     if not passes_dir.is_dir():
         raise FileNotFoundError(f"currents-vault at {root} has no passes/ directory")
     gates: dict[str, Gate] = {}
+    origin: dict[str, str] = {}
     for path in sorted(passes_dir.glob("*.md")):
         gate = _gate_from(path)
+        # Gates are keyed by name, so a repeated name would silently drop the
+        # earlier file. Real collisions exist on this coast — Juan de Fuca and
+        # Johnstone Strait each have a Race Passage.
+        if gate.name in gates:
+            raise ValueError(f"{path.name}: gate name {gate.name!r} already "
+                             f"defined by {origin[gate.name]}")
+        origin[gate.name] = path.name
         gates[gate.name] = gate
 
     raw = yaml.safe_load((root / "destinations.yaml").read_text()) or []

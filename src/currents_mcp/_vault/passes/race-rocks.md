@@ -1,5 +1,5 @@
 ---
-name: Race Passage
+name: Race Rocks
 provider: chs
 station_id: 63aeee896a2b9417c034d337
 latitude: 48.3067
@@ -26,3 +26,8 @@ about 7.5 — the ebb is the stronger. Slack does not coincide with shore high a
 low water (the offshore stream can turn 2 to 3 hours later), so time it from the
 current-station slack, not the tide tables; slack narrows to a few minutes at
 strong flows.
+
+Naming: CHS calls this station Race Passage (code 07090), and the inshore channel
+itself is Race Passage on the chart. The gate is named Race Rocks here because
+Johnstone Strait has its own Race Passage — and a Current Passage — about 200 nm
+northwest, and two gates sharing a name would collide.
