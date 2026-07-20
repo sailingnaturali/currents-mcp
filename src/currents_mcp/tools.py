@@ -260,11 +260,14 @@ async def plan_passage(
     origin = (from_lat, from_lon) if from_lat is not None and from_lon is not None else VICTORIA
 
     if not passage.gate_names:
-        return {
+        out = {
             "destination": passage.destination,
             "gates": [],
             "summary_display": _OPEN_WATER_SUMMARY,
         }
+        if passage.route_note:
+            out["route_note"] = passage.route_note
+        return out
 
     gates_out: list[dict] = []
     prev_point = origin
@@ -310,7 +313,10 @@ async def plan_passage(
     if currents.unreachable and not any(g["slack_windows"] for g in gates_out):
         lead = "The currents service is unreachable — slack data unavailable right now."
     summary = f"{len(gates_out)} tidal gate(s). {lead}"
-    return {"destination": passage.destination, "gates": gates_out, "summary_display": summary}
+    out = {"destination": passage.destination, "gates": gates_out, "summary_display": summary}
+    if passage.route_note:
+        out["route_note"] = passage.route_note
+    return out
 
 
 def list_gates() -> dict:

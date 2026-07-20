@@ -39,6 +39,9 @@ async def test_passage_multi_gate_first_gets_departure():
     assert result["gates"][1]["sets_display"] == (
         "Flood and ebb set directions are not available for this station."
     )
+    # The vault's authored route note must reach the caller -- it was loaded
+    # and silently dropped before (audit Q8, stored-but-never-read).
+    assert result["route_note"] == "Inside route beyond Desolation; transit both on one slack."
 
 
 async def test_downstream_gate_windows_filtered_by_eta():
