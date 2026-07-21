@@ -140,7 +140,7 @@ async def test_dispatch_get_tide_heights():
 
 async def test_dispatch_currents_near():
     # Smoke test: dispatch routes to currents_near and returns the gates shape.
-    dodd = GATES["Dodd Narrows"]
+    dodd = GATES["chs-dodd-narrows"]
     result = await dispatch(
         _currents(CURRENTS_PAYLOAD), _tides(TIDES_PAYLOAD),
         "currents_near", {"lat": dodd.latitude + 0.01, "lon": dodd.longitude + 0.01},

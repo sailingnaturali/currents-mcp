@@ -92,10 +92,10 @@ async def test_get_gate_current_omits_hazards_when_none(monkeypatch):
     every real gate now carries hazards, and the behaviour still needs covering.
     """
     from currents_mcp.passages import GATES, Gate
-    plain = Gate(name="Testless Narrows", provider="chs",
+    plain = Gate(key="chs-testless-narrows", name="Testless Narrows", provider="chs",
                  station_id="63aef1866a2b9417c035030f",  # Dodd's, so PAYLOAD resolves
                  latitude=49.1344, longitude=-123.8171, transit_window_minutes=30)
-    monkeypatch.setitem(GATES, plain.name, plain)
+    monkeypatch.setitem(GATES, plain.key, plain)
     currents = _client(PAYLOAD)
     result = await get_gate_current(currents, plain.name, date="2026-05-24")
     assert "hazards" not in result
@@ -107,6 +107,9 @@ async def test_get_gate_current_unknown_name_suggests():
     result = await get_gate_current(currents, "Nowhere Narrows")
     assert result.get("unmatched") is True
     assert "Dodd Narrows" in result["suggestions_display"]
+    # GATES is keyed by registry key; suggestions are read by a person, and a
+    # slug list would still be a well-formed string. Pin the difference.
+    assert "chs-" not in result["suggestions_display"]
 
 
 # Boundary Pass (NOAA station PUG1717) now comes from the same /currents resource;

@@ -4,7 +4,7 @@ from currents_mcp.passages import GATES, _load, find_gate, match_destination, co
 
 
 def test_known_gate_has_chs_station():
-    gate = GATES["Dodd Narrows"]
+    gate = GATES["chs-dodd-narrows"]
     assert gate.provider == "chs"
     assert gate.station_id == "63aef1866a2b9417c035030f"
 
@@ -18,12 +18,12 @@ def test_find_gate_is_case_insensitive():
 def test_match_destination_by_alias():
     p = match_destination("prideaux haven")
     assert p.destination == "Desolation Sound"
-    assert p.gate_names == ()  # open-water, no gates
+    assert p.gate_keys == ()  # open-water, no gates
 
 
 def test_match_destination_with_gates_is_ordered():
     p = match_destination("Cordero Channel")
-    assert p.gate_names == ("Gillard Passage", "Dent Rapids")
+    assert p.gate_keys == ("chs-gillard-passage", "chs-dent-rapids")
 
 
 def test_match_destination_unknown_returns_none():
@@ -32,15 +32,15 @@ def test_match_destination_unknown_returns_none():
 
 def test_arran_rapids_is_a_known_gate():
     # Added when the Pi station list grew to cover it (CT&CT Vol 6: flood 060/ebb 240).
-    gate = GATES["Arran Rapids"]
+    gate = GATES["chs-arran-rapids"]
     assert gate.provider == "chs"
     assert gate.station_id == "63aeff5884e5432cd3b71283"
     assert gate.transit_window_minutes == 20
 
 
 def test_boundary_pass_is_noaa():
-    assert GATES["Boundary Pass"].provider == "noaa"
-    assert GATES["Boundary Pass"].noaa_bin == 35
+    assert GATES["noaa-boundary-pass"].provider == "noaa"
+    assert GATES["noaa-boundary-pass"].noaa_bin == 35
 
 
 def test_coverage_lists_destinations_and_gates():
@@ -50,9 +50,11 @@ def test_coverage_lists_destinations_and_gates():
 
 
 def test_new_destinations_route_through_their_gates():
-    assert match_destination("skookumchuck").gate_names == ("Sechelt Rapids",)
-    assert match_destination("deep cove").gate_names == ("First Narrows", "Second Narrows")
-    assert match_destination("sooke").gate_names == ("Race Passage", "Juan de Fuca - East")
+    assert match_destination("skookumchuck").gate_keys == ("chs-sechelt-rapids",)
+    assert match_destination("deep cove").gate_keys == (
+        "chs-first-narrows", "chs-second-narrows")
+    assert match_destination("sooke").gate_keys == (
+        "chs-race-passage", "chs-juan-de-fuca-east")
 
 
 def test_duplicate_alias_across_destinations_is_rejected(tmp_path):
@@ -66,19 +68,45 @@ def test_duplicate_alias_across_destinations_is_rejected(tmp_path):
         _load(tmp_path)
 
 
-def test_duplicate_gate_name_across_files_is_rejected(tmp_path):
-    # Juan de Fuca and Johnstone Strait each have a Race Passage; keying gates
-    # by name means a repeat would silently drop the earlier file.
+# A stand-in station registry, so the loader's validation branches are testable
+# without depending on which twenty stations the real registry happens to hold.
+_FAKE_REGISTRY = {
+    "chs-real-gate": {"name": "Real Gate", "position": [49.0, -123.0],
+                      "provider": "chs", "providerId": "abc123"},
+    # Two keys, one display name — representable in the registry, and exactly
+    # what the display-name guard in _load exists to reject.
+    "chs-race-passage": {"name": "Race Passage", "position": [48.3, -123.5],
+                         "provider": "chs", "providerId": "aaa"},
+    "chs-johnstone-race-passage": {"name": "Race Passage", "position": [50.5, -126.5],
+                                   "provider": "chs", "providerId": "bbb"},
+}
+
+
+def _write_gate(tmp_path, filename, station):
     passes = tmp_path / "passes"
-    passes.mkdir()
-    body = ("---\nname: Race Passage\nprovider: chs\nstation_id: {sid}\n"
-            "latitude: 48.3\nlongitude: -123.5\ntransit_window_minutes: 30\n"
-            "hazards: []\n---\n")
-    (passes / "a-race.md").write_text(body.format(sid="aaa"))
-    (passes / "b-race.md").write_text(body.format(sid="bbb"))
+    passes.mkdir(exist_ok=True)
+    (passes / filename).write_text(
+        f"---\nstation: {station}\ntransit_window_minutes: 30\n---\nBody.\n"
+    )
+
+
+def test_duplicate_gate_name_across_files_is_rejected(tmp_path):
+    # Keys are unique, but find_gate resolves display names — so two gates
+    # sharing one would make a lookup ambiguous. Reject at load instead.
+    _write_gate(tmp_path, "a-race.md", "chs-race-passage")
+    _write_gate(tmp_path, "b-race.md", "chs-johnstone-race-passage")
     (tmp_path / "destinations.yaml").write_text("[]\n")
     with pytest.raises(ValueError, match="already defined by"):
-        _load(tmp_path)
+        _load(tmp_path, _FAKE_REGISTRY)
+
+
+def test_gate_with_no_registry_entry_is_rejected(tmp_path):
+    # The twenty-first gate: a station key that nothing in the registry defines
+    # must fail loudly at load, naming the key — not load as a partial gate.
+    _write_gate(tmp_path, "ghost.md", "chs-nowhere")
+    (tmp_path / "destinations.yaml").write_text("[]\n")
+    with pytest.raises(ValueError, match="chs-nowhere.*not in the station registry"):
+        _load(tmp_path, _FAKE_REGISTRY)
 
 
 def test_destination_routing_through_an_unknown_gate_is_rejected(tmp_path):
@@ -86,57 +114,35 @@ def test_destination_routing_through_an_unknown_gate_is_rejected(tmp_path):
     exist. The guard is real (passages.py) but was unpinned, so a refactor
     could have quietly dropped it.
 
-    This matters because destinations.yaml refers to gates by display name, so
-    a rename has to be made in two places at once - and a typo in either would
-    otherwise only surface at request time, as a passage with a gate nobody
-    can look up.
+    Routing is by registry key, so a typo cannot be masked by a display-name
+    match; without this guard it would only surface at request time, as a
+    passage carrying a gate nobody can look up.
     """
-    (tmp_path / "passes").mkdir()
-    (tmp_path / "passes" / "real.md").write_text(
-        "---\n"
-        "name: Real Gate\n"
-        "provider: chs\n"
-        "station_id: abc123\n"
-        "latitude: 49.0\n"
-        "longitude: -123.0\n"
-        "transit_window_minutes: 30\n"
-        "---\n"
-        "Body.\n"
-    )
+    _write_gate(tmp_path, "real.md", "chs-real-gate")
     (tmp_path / "destinations.yaml").write_text(
         "- destination: Somewhere\n"
         "  aliases: [somewhere]\n"
-        "  gates: [Typo'd Gate]\n"
+        "  gates: [chs-typod-gate]\n"
         "  route_note: n/a\n"
     )
 
     with pytest.raises(ValueError, match="routes through unknown gate"):
-        _load(tmp_path)
+        _load(tmp_path, _FAKE_REGISTRY)
 
 
 def test_a_valid_destination_loads(tmp_path):
-    """Companion to the above: the same fixture with the gate name spelled
+    """Companion to the above: the same fixture with the gate key spelled
     correctly must load, so the test above is failing for the reason claimed
     and not because the fixture is malformed."""
-    (tmp_path / "passes").mkdir()
-    (tmp_path / "passes" / "real.md").write_text(
-        "---\n"
-        "name: Real Gate\n"
-        "provider: chs\n"
-        "station_id: abc123\n"
-        "latitude: 49.0\n"
-        "longitude: -123.0\n"
-        "transit_window_minutes: 30\n"
-        "---\n"
-        "Body.\n"
-    )
+    _write_gate(tmp_path, "real.md", "chs-real-gate")
     (tmp_path / "destinations.yaml").write_text(
         "- destination: Somewhere\n"
         "  aliases: [somewhere]\n"
-        "  gates: [Real Gate]\n"
+        "  gates: [chs-real-gate]\n"
         "  route_note: n/a\n"
     )
 
-    gates, passages = _load(tmp_path)
-    assert list(gates) == ["Real Gate"]
-    assert passages[0].gate_names == ("Real Gate",)
+    gates, passages = _load(tmp_path, _FAKE_REGISTRY)
+    assert list(gates) == ["chs-real-gate"]
+    assert gates["chs-real-gate"].name == "Real Gate"   # identity came from the registry
+    assert passages[0].gate_keys == ("chs-real-gate",)

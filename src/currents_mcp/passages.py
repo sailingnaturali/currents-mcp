@@ -15,6 +15,7 @@ Open-water destinations have empty gate lists by design.
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +23,14 @@ from pathlib import Path
 import yaml
 
 _HAZARD_STATES = {"flood", "ebb", "any"}
+
+# Station identity (name, position, provider, provider id) lives in
+# @sailingnaturali/station-corrections, which publishes it as a plain JSON
+# artifact on ./data/* precisely so non-JavaScript consumers can read it without
+# npm. Vendored here; test_registry_drift.py fails when it lags the sibling repo.
+_REGISTRY: dict[str, dict] = json.loads(
+    (Path(__file__).parent / "_registry.json").read_text()
+)
 
 
 @dataclass(frozen=True)
@@ -32,6 +41,7 @@ class Hazard:
 
 @dataclass(frozen=True)
 class Gate:
+    key: str               # registry key, e.g. "chs-dodd-narrows" — never shown to a user
     name: str
     provider: str          # "chs" | "noaa"
     station_id: str
@@ -46,7 +56,7 @@ class Gate:
 class Passage:
     destination: str
     aliases: tuple[str, ...]
-    gate_names: tuple[str, ...]
+    gate_keys: tuple[str, ...]   # registry keys — map through GATES for display
     route_note: str
 
 
@@ -79,7 +89,10 @@ def _parse_frontmatter(path: Path) -> dict:
     return data
 
 
-def _gate_from(path: Path) -> Gate:
+def _gate_from(path: Path, registry: dict[str, dict]) -> Gate:
+    """Build a gate from vault frontmatter: `station` names a registry entry that
+    supplies identity; the vault supplies only its own knowledge (transit window,
+    hazards)."""
     d = _parse_frontmatter(path)
     try:
         hazards = tuple(
@@ -91,50 +104,77 @@ def _gate_from(path: Path) -> Gate:
     if bad:
         raise ValueError(f"{path.name}: unknown hazard state(s) {bad}; "
                          f"allowed: {sorted(_HAZARD_STATES)}")
+    # ponytail: the `name` fallback tolerates pre-migration frontmatter so the
+    # vault can change in its own commit; drop it once currents-vault ships
+    # `station:` keys (docs/superpowers/specs/2026-07-21-registry-identity-design.md).
+    key = d.get("station") or next(
+        (k for k, s in registry.items() if s["name"] == d.get("name")), None
+    )
+    station = registry.get(key)
+    if station is None:
+        raise ValueError(f"{path.name}: station {(key or d.get('name'))!r} is not in "
+                         f"the station registry")
+    lat, lon = station["position"]
     try:
         return Gate(
-            name=d["name"],
-            provider=d["provider"],
-            station_id=str(d["station_id"]),
-            latitude=float(d["latitude"]),
-            longitude=float(d["longitude"]),
+            key=key,
+            name=station["name"],
+            provider=station["provider"],
+            station_id=str(station["providerId"]),
+            latitude=float(lat),
+            longitude=float(lon),
             transit_window_minutes=int(d["transit_window_minutes"]),
-            noaa_bin=d.get("noaa_bin"),
+            noaa_bin=station.get("providerBin"),
             hazards=hazards,
         )
     except KeyError as exc:
         raise ValueError(f"{path.name}: missing required field {exc}") from exc
 
 
-def _load(root: Path) -> tuple[dict[str, Gate], tuple[Passage, ...]]:
+def _load(root: Path,
+          registry: dict[str, dict] | None = None,
+          ) -> tuple[dict[str, Gate], tuple[Passage, ...]]:
+    """Load the vault, resolving each gate's identity through the station
+    registry. `registry` is injectable so the validation branches below can be
+    tested against fixtures instead of the twenty real stations."""
+    registry = _REGISTRY if registry is None else registry
     passes_dir = root / "passes"
     if not passes_dir.is_dir():
         raise FileNotFoundError(f"currents-vault at {root} has no passes/ directory")
     gates: dict[str, Gate] = {}
     origin: dict[str, str] = {}
     for path in sorted(passes_dir.glob("*.md")):
-        gate = _gate_from(path)
-        # Gates are keyed by name, so a repeated name would silently drop the
-        # earlier file. Real collisions exist on this coast — Juan de Fuca and
-        # Johnstone Strait each have a Race Passage.
-        if gate.name in gates:
+        gate = _gate_from(path, registry)
+        if gate.key in gates:
+            raise ValueError(f"{path.name}: station {gate.key!r} already "
+                             f"defined by {origin[gate.key]}")
+        # ponytail: display names are also required to be unique, so find_gate
+        # stays unambiguous. Keys allow collisions (Juan de Fuca and Johnstone
+        # Strait each have a Race Passage); when one lands, disambiguate with
+        # the registry's `context` rather than relaxing this.
+        clash = next((g for g in gates.values() if g.name == gate.name), None)
+        if clash:
             raise ValueError(f"{path.name}: gate name {gate.name!r} already "
-                             f"defined by {origin[gate.name]}")
-        origin[gate.name] = path.name
-        gates[gate.name] = gate
+                             f"defined by {origin[clash.key]}")
+        origin[gate.key] = path.name
+        gates[gate.key] = gate
 
     raw = yaml.safe_load((root / "destinations.yaml").read_text()) or []
+    by_name = {g.name: g.key for g in gates.values()}
     passages: list[Passage] = []
     for entry in raw:
-        names = tuple(entry.get("gates") or ())
-        unknown = [n for n in names if n not in gates]
+        # ponytail: display names are accepted alongside keys only until the
+        # vault migration lands; drop the `by_name` lookup with it.
+        keys = tuple(k if k in gates else by_name.get(k, k)
+                     for k in (entry.get("gates") or ()))
+        unknown = [k for k in keys if k not in gates]
         if unknown:
             raise ValueError(f"destinations.yaml: {entry.get('destination')!r} "
                              f"routes through unknown gate(s) {unknown}")
         passages.append(Passage(
             destination=entry["destination"],
             aliases=tuple(entry.get("aliases") or ()),
-            gate_names=names,
+            gate_keys=keys,
             route_note=entry.get("route_note", ""),
         ))
 
@@ -154,7 +194,10 @@ GATES, PASSAGES = _load(vault_path())
 
 
 def find_gate(name: str) -> Gate | None:
-    """Case-insensitive gate lookup by exact name."""
+    """Case-insensitive gate lookup by exact display name. This is the
+    user-facing entry point — people say "Dodd Narrows", not "chs-dodd-narrows"
+    — so it matches names, never registry keys. _load guarantees names are
+    unique, so the match is unambiguous."""
     key = name.strip().lower()
     for gate in GATES.values():
         if gate.name.lower() == key:
@@ -172,10 +215,11 @@ def match_destination(query: str) -> Passage | None:
 
 
 def coverage() -> list[dict]:
-    """Known destinations and the gates they cover - for list_gates()."""
+    """Known destinations and the gates they cover - for list_gates().
+    Gates render as display names; registry keys never reach a reader."""
     return [
         {"destination": p.destination,
          "aliases": list(p.aliases),
-         "gates": list(p.gate_names)}
+         "gates": [GATES[k].name for k in p.gate_keys]}
         for p in PASSAGES
     ]

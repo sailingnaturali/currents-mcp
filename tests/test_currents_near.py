@@ -13,7 +13,7 @@ _EMPTY = {"stations": []}
 
 
 async def test_nearest_first_with_distance():
-    dodd = GATES["Dodd Narrows"]
+    dodd = GATES["chs-dodd-narrows"]
     payload = {"stations": [{"stationId": dodd.station_id, "label": dodd.name,
                              "lat": dodd.latitude, "lon": dodd.longitude, "events": [
         {"utc": "2026-05-24T09:14:00Z", "kind": "slack", "speedKn": 0.0},
@@ -37,7 +37,7 @@ async def test_empty_with_message_when_none_in_radius():
 
 
 async def test_radius_excludes_far_gates():
-    dodd = GATES["Dodd Narrows"]
+    dodd = GATES["chs-dodd-narrows"]
     res = await currents_near(_currents(_EMPTY),
                               lat=dodd.latitude, lon=dodd.longitude, radius_nm=0.1)
     # 0.1 nm radius around Dodd: only a gate essentially on the point qualifies.

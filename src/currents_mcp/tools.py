@@ -165,7 +165,8 @@ def _gate_sets(dirs: dict) -> dict:
 
 
 def _gate_suggestions() -> str:
-    return "Known gates: " + ", ".join(GATES.keys()) + "."
+    # GATES is keyed by registry key ("chs-dodd-narrows"); a person is shown names.
+    return "Known gates: " + ", ".join(g.name for g in GATES.values()) + "."
 
 
 _HAZARD_LABEL = {"flood": "On the flood", "ebb": "On the ebb", "any": "Any tide"}
@@ -259,7 +260,7 @@ async def plan_passage(
     depart = _parse_dt_arg(depart_time)
     origin = (from_lat, from_lon) if from_lat is not None and from_lon is not None else VICTORIA
 
-    if not passage.gate_names:
+    if not passage.gate_keys:
         out = {
             "destination": passage.destination,
             "gates": [],
@@ -272,8 +273,8 @@ async def plan_passage(
     gates_out: list[dict] = []
     prev_point = origin
     travel = timedelta(0)
-    for idx, gname in enumerate(passage.gate_names):
-        gate = GATES[gname]
+    for idx, gkey in enumerate(passage.gate_keys):
+        gate = GATES[gkey]
         # Filter each gate's windows by estimated arrival THERE, not by the
         # departure time — a downstream gate's slack an hour after departure
         # is unreachable and must not read as actionable.
