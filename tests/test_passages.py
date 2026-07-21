@@ -79,3 +79,64 @@ def test_duplicate_gate_name_across_files_is_rejected(tmp_path):
     (tmp_path / "destinations.yaml").write_text("[]\n")
     with pytest.raises(ValueError, match="already defined by"):
         _load(tmp_path)
+
+
+def test_destination_routing_through_an_unknown_gate_is_rejected(tmp_path):
+    """_load refuses a destination that routes through a gate that does not
+    exist. The guard is real (passages.py) but was unpinned, so a refactor
+    could have quietly dropped it.
+
+    This matters because destinations.yaml refers to gates by display name, so
+    a rename has to be made in two places at once - and a typo in either would
+    otherwise only surface at request time, as a passage with a gate nobody
+    can look up.
+    """
+    (tmp_path / "passes").mkdir()
+    (tmp_path / "passes" / "real.md").write_text(
+        "---\n"
+        "name: Real Gate\n"
+        "provider: chs\n"
+        "station_id: abc123\n"
+        "latitude: 49.0\n"
+        "longitude: -123.0\n"
+        "transit_window_minutes: 30\n"
+        "---\n"
+        "Body.\n"
+    )
+    (tmp_path / "destinations.yaml").write_text(
+        "- destination: Somewhere\n"
+        "  aliases: [somewhere]\n"
+        "  gates: [Typo'd Gate]\n"
+        "  route_note: n/a\n"
+    )
+
+    with pytest.raises(ValueError, match="routes through unknown gate"):
+        _load(tmp_path)
+
+
+def test_a_valid_destination_loads(tmp_path):
+    """Companion to the above: the same fixture with the gate name spelled
+    correctly must load, so the test above is failing for the reason claimed
+    and not because the fixture is malformed."""
+    (tmp_path / "passes").mkdir()
+    (tmp_path / "passes" / "real.md").write_text(
+        "---\n"
+        "name: Real Gate\n"
+        "provider: chs\n"
+        "station_id: abc123\n"
+        "latitude: 49.0\n"
+        "longitude: -123.0\n"
+        "transit_window_minutes: 30\n"
+        "---\n"
+        "Body.\n"
+    )
+    (tmp_path / "destinations.yaml").write_text(
+        "- destination: Somewhere\n"
+        "  aliases: [somewhere]\n"
+        "  gates: [Real Gate]\n"
+        "  route_note: n/a\n"
+    )
+
+    gates, passages = _load(tmp_path)
+    assert list(gates) == ["Real Gate"]
+    assert passages[0].gate_names == ("Real Gate",)
