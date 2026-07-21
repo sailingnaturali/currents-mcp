@@ -1,9 +1,5 @@
 ---
-name: Gillard Passage
-provider: chs
-station_id: 5dd3064fe0fdc4b9b4be6978
-latitude: 50.3933
-longitude: -125.1567
+station: chs-gillard-passage
 transit_window_minutes: 20
 hazards:
   - state: flood

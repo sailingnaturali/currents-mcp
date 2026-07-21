@@ -1,9 +1,5 @@
 ---
-name: Blackney Passage
-provider: chs
-station_id: 63af00086a2b9417c0353154
-latitude: 50.5550
-longitude: -126.6842
+station: chs-blackney-passage
 transit_window_minutes: 20
 hazards:
   - state: any

@@ -1,9 +1,5 @@
 ---
-name: Johnstone Strait - Central
-provider: chs
-station_id: 63aeffc384e5432cd3b71285
-latitude: 50.4717
-longitude: -126.1367
+station: chs-johnstone-strait-central
 transit_window_minutes: 60
 hazards:
   - state: any

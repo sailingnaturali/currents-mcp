@@ -1,9 +1,5 @@
 ---
-name: Seymour Narrows
-provider: chs
-station_id: 63aefc7784e5432cd3b6eb1e
-latitude: 50.1333
-longitude: -125.35
+station: chs-seymour-narrows
 transit_window_minutes: 30
 hazards:
   - state: any

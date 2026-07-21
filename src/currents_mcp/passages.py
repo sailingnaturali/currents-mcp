@@ -8,8 +8,14 @@ beyond this MCP. Its location comes from `CURRENTS_VAULT_PATH` (default
 loader validates on import and fails loudly on a malformed file or a destination
 that routes through an unknown gate.
 
-Station IDs + coordinates were verified against the live CHS IWLS API; hazards
-are paraphrased from cruising references (see the vault's `manifest.yaml`).
+Identity is split from knowledge. The vault holds only what it knows about a
+passage — transit windows and hazards, the latter paraphrased from cruising
+references (see the vault's `manifest.yaml`). A gate's name, position, provider
+and provider station id come from the station registry, keyed by the vault's
+`station` field, so a curated name or position is written once. Gates are
+therefore keyed internally by registry key; display names are presentation, and
+`find_gate`, `coverage` and the tools' suggestion strings are what a person sees.
+
 Open-water destinations have empty gate lists by design.
 """
 
@@ -104,16 +110,10 @@ def _gate_from(path: Path, registry: dict[str, dict]) -> Gate:
     if bad:
         raise ValueError(f"{path.name}: unknown hazard state(s) {bad}; "
                          f"allowed: {sorted(_HAZARD_STATES)}")
-    # ponytail: the `name` fallback tolerates pre-migration frontmatter so the
-    # vault can change in its own commit; drop it once currents-vault ships
-    # `station:` keys (docs/superpowers/specs/2026-07-21-registry-identity-design.md).
-    key = d.get("station") or next(
-        (k for k, s in registry.items() if s["name"] == d.get("name")), None
-    )
+    key = d.get("station")
     station = registry.get(key)
     if station is None:
-        raise ValueError(f"{path.name}: station {(key or d.get('name'))!r} is not in "
-                         f"the station registry")
+        raise ValueError(f"{path.name}: station {key!r} is not in the station registry")
     lat, lon = station["position"]
     try:
         return Gate(
@@ -160,13 +160,9 @@ def _load(root: Path,
         gates[gate.key] = gate
 
     raw = yaml.safe_load((root / "destinations.yaml").read_text()) or []
-    by_name = {g.name: g.key for g in gates.values()}
     passages: list[Passage] = []
     for entry in raw:
-        # ponytail: display names are accepted alongside keys only until the
-        # vault migration lands; drop the `by_name` lookup with it.
-        keys = tuple(k if k in gates else by_name.get(k, k)
-                     for k in (entry.get("gates") or ()))
+        keys = tuple(entry.get("gates") or ())
         unknown = [k for k in keys if k not in gates]
         if unknown:
             raise ValueError(f"destinations.yaml: {entry.get('destination')!r} "

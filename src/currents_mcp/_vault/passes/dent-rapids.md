@@ -1,9 +1,5 @@
 ---
-name: Dent Rapids
-provider: chs
-station_id: 63af06d56a2b9417c0353451
-latitude: 50.41
-longitude: -125.2117
+station: chs-dent-rapids
 transit_window_minutes: 20
 hazards:
   - state: flood

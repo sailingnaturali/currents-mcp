@@ -1,10 +1,11 @@
 # Destination routing: aliases + ordered tidal gates + a one-line route note.
-# Gate names must match a passes/<slug>.md `name`. Open-water destinations
+# Gates are station-registry keys, matching a passes/<slug>.md `station`; they
+# are internal identifiers, never shown to a reader. Open-water destinations
 # have an empty gates list by design.
 
 - destination: Nanaimo
   aliases: [nanaimo, newcastle island]
-  gates: [Dodd Narrows]
+  gates: [chs-dodd-narrows]
   route_note: Protected inside route; Dodd is the final gate.
 
 - destination: Gulf Islands
@@ -29,72 +30,72 @@
 
 - destination: Discovery Islands
   aliases: [discovery islands, surge narrows, octopus islands]
-  gates: [Beazley Passage]
+  gates: [chs-beazley-passage]
   route_note: Inside via Hoskyn Channel; Beazley is the channel through Surge Narrows.
 
 - destination: Johnstone Strait via Discovery Passage
   aliases: [discovery passage, johnstone strait]
-  gates: [Seymour Narrows, Johnstone Strait - Central]
+  gates: [chs-seymour-narrows, chs-johnstone-strait-central]
   route_note: >-
     Discovery Passage north past Campbell River, then the strait itself. Work
     the ebb westbound and start early — the summer westerly builds after noon.
 
 - destination: Broughton Archipelago
   aliases: [broughtons, broughton archipelago, blackfish sound, echo bay, port mcneill]
-  gates: [Seymour Narrows, Johnstone Strait - Central, Blackney Passage]
+  gates: [chs-seymour-narrows, chs-johnstone-strait-central, chs-blackney-passage]
   route_note: >-
     Up Johnstone Strait, then Blackney into Blackfish Sound. Blackney slack
     references Seymour Narrows, not the strait.
 
 - destination: Cordero Channel
   aliases: [cordero channel, yuculta rapids, dent rapids, blind channel]
-  gates: [Gillard Passage, Dent Rapids]
+  gates: [chs-gillard-passage, chs-dent-rapids]
   route_note: Inside route beyond Desolation; transit both on one slack.
 
 - destination: Friday Harbor
   aliases: [friday harbor, friday harbour, san juan islands, san juans]
-  gates: [Boundary Pass]
+  gates: [noaa-boundary-pass]
   route_note: US waters; NOAA provider.
 
 - destination: Sechelt Inlet
   aliases: [sechelt inlet, sechelt, egmont, skookumchuck, storm bay]
-  gates: [Sechelt Rapids]
+  gates: [chs-sechelt-rapids]
   route_note: >-
     Skookumchuck Narrows is the only way in. Slack only — no working the eddies
     at 16 knots.
 
 - destination: Bute Inlet
   aliases: [bute inlet, bute, waddington harbour]
-  gates: [Arran Rapids]
+  gates: [chs-arran-rapids]
   route_note: >-
     Arran is the direct gate off Stuart Island, and the violent one; the
     Yuculta-Gillard-Dent line into Cordero is the usual alternative.
 
 - destination: Okisollo Channel
   aliases: [okisollo, okisollo channel, hole in the wall, upper rapids]
-  gates: [Hole in the Wall]
+  gates: [chs-hole-in-the-wall]
   route_note: >-
     Northern Discovery Islands route; slack window is minutes, not tens of
     minutes.
 
 - destination: Vancouver
   aliases: [vancouver, coal harbour, false creek, english bay, first narrows]
-  gates: [First Narrows]
+  gates: [chs-first-narrows]
   route_note: First Narrows under Lions Gate; the ebb runs hard against inbound traffic.
 
 - destination: Indian Arm
   aliases: [indian arm, port moody, deep cove, burrard inlet]
-  gates: [First Narrows, Second Narrows]
+  gates: [chs-first-narrows, chs-second-narrows]
   route_note: Both Burrard Inlet narrows; Second Narrows is the tighter of the two.
 
 - destination: Gorge Waterway
   aliases: [gorge waterway, the gorge, portage inlet, tillicum]
-  gates: [Tillicum Bridge]
+  gates: [chs-tillicum-bridge]
   route_note: Above Victoria Harbour; the Gorge reverses at the Tillicum narrows.
 
 - destination: Sooke and West Juan de Fuca
   aliases: [sooke, sooke basin, port renfrew, west juan de fuca, juan de fuca]
-  gates: [Race Passage, Juan de Fuca - East]
+  gates: [chs-race-passage, chs-juan-de-fuca-east]
   route_note: >-
     Westbound from Victoria through Race Passage; time it off the current
     station, not the tide tables.

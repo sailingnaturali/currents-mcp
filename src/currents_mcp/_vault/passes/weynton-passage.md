@@ -1,9 +1,5 @@
 ---
-name: Weynton Passage
-provider: chs
-station_id: 63af005f6a2b9417c0353158
-latitude: 50.6033
-longitude: -126.8117
+station: chs-weynton-passage
 transit_window_minutes: 30
 hazards:
   - state: any

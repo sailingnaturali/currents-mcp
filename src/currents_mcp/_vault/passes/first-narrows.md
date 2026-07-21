@@ -1,9 +1,5 @@
 ---
-name: First Narrows
-provider: chs
-station_id: 5dd30650e0fdc4b9b4be6d24
-latitude: 49.3160
-longitude: -123.1401
+station: chs-first-narrows
 transit_window_minutes: 30
 hazards:
   - state: any
