@@ -1,0 +1,26 @@
+name: version tagged
+# Version bumps used to land untagged and stay that way — nothing published from
+# these repos, so a missing tag cost nothing at the time and was invisible later.
+# This makes it loud at the moment it happens. Runs on tag pushes too, so tagging
+# turns the failure green without a manual re-run.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # tags
+      - name: pyproject version has a matching tag
+        run: |
+          version=$(grep -m1 '^version' pyproject.toml | sed 's/.*"\(.*\)".*/\1/')
+          if git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
+            echo "v$version is tagged."
+          else
+            echo "::error file=pyproject.toml::Version $version has no tag. Release it with: git tag v$version && git push --tags"
+            exit 1
+          fi
