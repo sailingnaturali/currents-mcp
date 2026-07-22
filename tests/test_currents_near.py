@@ -14,7 +14,7 @@ _EMPTY = {"stations": []}
 
 async def test_nearest_first_with_distance():
     dodd = GATES["chs-dodd-narrows"]
-    payload = {"stations": [{"stationId": dodd.station_id, "label": dodd.name,
+    payload = {"stations": [{"stationId": dodd.key, "label": dodd.name,
                              "lat": dodd.latitude, "lon": dodd.longitude, "events": [
         {"utc": "2026-05-24T09:14:00Z", "kind": "slack", "speedKn": 0.0},
         {"utc": "2026-05-24T12:14:00Z", "kind": "flood", "speedKn": 6.0},

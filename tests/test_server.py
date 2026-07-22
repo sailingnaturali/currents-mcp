@@ -6,7 +6,7 @@ from currents_mcp.passages import GATES
 from currents_mcp.server import DEFAULT_SIGNALK_URL, TOOL_NAMES, build_server, dispatch
 from currents_mcp.tides_source import TidesClient
 
-# Dodd Narrows station_id; slack at 09:14Z.
+# Dodd Narrows; slack at 09:14Z.
 CURRENTS_PAYLOAD = {"stations": [
     {"stationId": "63aef1866a2b9417c035030f", "label": "Dodd Narrows",
      "lat": 49.1344, "lon": -123.8171, "events": [

@@ -191,12 +191,12 @@ async def _gate_current_state(
 ) -> dict:
     """Current state for one gate: slack windows + flood/ebb sets. Shared by
     get_gate_current (named) and currents_near (by position)."""
-    events = await currents.events_for_station(gate.station_id)
+    events = await currents.events_for_station(gate.name)
     out = {
         "name": gate.name,
         "slack_windows": _slack_windows(events, 3, after),
         "transit_window_minutes": gate.transit_window_minutes,
-        **_gate_sets(await currents.dirs_for_station(gate.station_id)),
+        **_gate_sets(await currents.dirs_for_station(gate.name)),
         **_gate_hazards(gate),
     }
     if not events and currents.unreachable:
@@ -283,12 +283,12 @@ async def plan_passage(
         ) / DEFAULT_SPEED_KNOTS)
         prev_point = (gate.latitude, gate.longitude)
         eta = depart + travel
-        events = await currents.events_for_station(gate.station_id)
+        events = await currents.events_for_station(gate.name)
         entry = {
             "name": gate.name,
             "slack_windows": _slack_windows(events, 3, eta if idx else depart),
             "transit_window_minutes": gate.transit_window_minutes,
-            **_gate_sets(await currents.dirs_for_station(gate.station_id)),
+            **_gate_sets(await currents.dirs_for_station(gate.name)),
             **_gate_hazards(gate),
         }
         if idx == 0:

@@ -14,6 +14,12 @@ from currents_mcp.providers import CurrentEvent, _parse_dt
 CURRENTS_PATH = "/signalk/v2/api/resources/currents"
 
 
+def _norm(name: str) -> str:
+    """Join key for correlating a gate to a plugin reading: fold case and trim
+    so a label/name that differs only in casing or spacing still matches."""
+    return name.strip().casefold()
+
+
 def _event_from_plugin(d: dict, flood_dir: int | None, ebb_dir: int | None) -> CurrentEvent:
     """Map a plugin event; flood/ebb set (°true) is station-level config carried
     onto every event (absent from plugin < 0.3.0 payloads -> None)."""
@@ -38,7 +44,7 @@ def _dirs_from_station(s: dict) -> dict:
 
 class CurrentsClient:
     """Fetches /currents once per process lifetime cheaply (in-memory), maps
-    stationId -> events (+ direction metadata). `getter` is injectable for tests."""
+    station name -> events (+ direction metadata). `getter` is injectable for tests."""
 
     def __init__(
         self, signalk_url: str,
@@ -83,28 +89,29 @@ class CurrentsClient:
             cache: dict[str, list[CurrentEvent]] = {}
             dirs: dict[str, dict] = {}
             for s in payload.get("stations", []):
-                sid = s.get("stationId")
-                if not sid:
-                    print(f"currents-mcp: skipping station without stationId: "
-                          f"{s.get('label')!r}", file=sys.stderr)
+                name = s.get("label")
+                if not name:
+                    print(f"currents-mcp: skipping station without label: "
+                          f"{s.get('stationId')!r}", file=sys.stderr)
                     continue
+                key = _norm(name)
                 events: list[CurrentEvent] = []
                 for e in s.get("events", []):
                     try:
                         events.append(_event_from_plugin(
                             e, s.get("floodDir"), s.get("ebbDir")))
                     except (KeyError, TypeError, ValueError) as exc:
-                        print(f"currents-mcp: skipping malformed event for {sid}: "
+                        print(f"currents-mcp: skipping malformed event for {name!r}: "
                               f"{exc!r}", file=sys.stderr)
                 events.sort(key=lambda e: e.utc)
-                cache[sid] = events
-                dirs[sid] = _dirs_from_station(s)
+                cache[key] = events
+                dirs[key] = _dirs_from_station(s)
             self._cache, self._dirs = cache, dirs
             return self._cache
 
-    async def events_for_station(self, station_id: str) -> list[CurrentEvent]:
-        return (await self._load()).get(station_id, [])
+    async def events_for_station(self, name: str) -> list[CurrentEvent]:
+        return (await self._load()).get(_norm(name), [])
 
-    async def dirs_for_station(self, station_id: str) -> dict:
+    async def dirs_for_station(self, name: str) -> dict:
         await self._load()
-        return self._dirs.get(station_id, {})
+        return self._dirs.get(_norm(name), {})

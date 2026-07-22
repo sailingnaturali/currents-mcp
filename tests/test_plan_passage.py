@@ -3,7 +3,7 @@ from currents_mcp.tools import plan_passage
 
 # Gillard Passage is ~137 nm from Victoria -> ~23h at 6 kn. Departing 2026-05-24T00:00Z,
 # the earliest reachable slack must be ~23h out, so the slack lands on 2026-05-25.
-# /currents is keyed by station_id: Gillard 5dd3064fe0fdc4b9b4be6978, Dent 63af06d56a2b9417c0353451.
+# /currents is correlated by station label: "Gillard Passage", "Dent Rapids".
 _DAY = [
     {"utc": "2026-05-25T00:00:00Z", "kind": "ebb", "speedKn": 5.0},
     {"utc": "2026-05-25T02:00:00Z", "kind": "slack", "speedKn": 0.0},

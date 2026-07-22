@@ -18,18 +18,27 @@ async def test_events_for_station_parses_payload():
         calls["n"] += 1
         return PAYLOAD
     c = CurrentsClient("http://signalk:3000", getter=fake_get)
-    ev = await c.events_for_station("g")
+    ev = await c.events_for_station("Gillard")
     assert [(e.kind, e.speed_knots) for e in ev] == [("slack", 0.0), ("flood", 4.1)]
     assert isinstance(ev[0], CurrentEvent)
-    await c.events_for_station("g")            # cached
+    await c.events_for_station("Gillard")       # cached
     assert calls["n"] == 1                      # fetched once
+
+
+@pytest.mark.asyncio
+async def test_events_for_station_normalizes_case_and_whitespace():
+    """A queried name differing only in case/whitespace from the plugin's
+    label still resolves — the join key is normalized on both sides."""
+    c = CurrentsClient("http://signalk:3000", getter=lambda url: PAYLOAD)
+    ev = await c.events_for_station(" gillard  ")
+    assert [(e.kind, e.speed_knots) for e in ev] == [("slack", 0.0), ("flood", 4.1)]
 
 
 @pytest.mark.asyncio
 async def test_events_carry_station_set_directions():
     """Station-level floodDir/ebbDir (plugin >= 0.3.0) land on every event."""
     c = CurrentsClient("http://signalk:3000", getter=lambda url: PAYLOAD)
-    ev = await c.events_for_station("g")
+    ev = await c.events_for_station("Gillard")
     assert all((e.flood_dir, e.ebb_dir) == (160, 340) for e in ev)
 
 
@@ -42,7 +51,7 @@ async def test_dirs_for_station_exposes_provenance():
          "ebbDirEstimated": True, "events": []},
     ]}
     c = CurrentsClient("http://signalk:3000", getter=lambda url: payload)
-    d = await c.dirs_for_station("g")
+    d = await c.dirs_for_station("Gillard")
     assert d == {"flood_dir": 95, "ebb_dir": 275, "source": "config",
                  "flood_dir_estimated": False, "ebb_dir_estimated": True}
 
@@ -62,7 +71,7 @@ async def test_missing_set_directions_default_to_none():
         ]},
     ]}
     c = CurrentsClient("http://signalk:3000", getter=lambda url: legacy)
-    ev = await c.events_for_station("g")
+    ev = await c.events_for_station("Gillard")
     assert (ev[0].flood_dir, ev[0].ebb_dir) == (None, None)
 
 
@@ -78,7 +87,7 @@ async def test_unreachable_degrades_to_empty():
     def boom(url):
         raise RuntimeError("plugin down")
     c = CurrentsClient("http://signalk:3000", getter=boom)
-    assert await c.events_for_station("g") == []
+    assert await c.events_for_station("Gillard") == []
 
 
 @pytest.mark.asyncio
@@ -87,7 +96,7 @@ async def test_unreachable_is_distinguishable_from_no_data():
     def boom(url):
         raise RuntimeError("plugin down")
     down = CurrentsClient("http://signalk:3000", getter=boom)
-    await down.events_for_station("g")
+    await down.events_for_station("Gillard")
     assert down.unreachable is True
 
     up = CurrentsClient("http://signalk:3000", getter=lambda url: PAYLOAD)
@@ -97,10 +106,10 @@ async def test_unreachable_is_distinguishable_from_no_data():
 
 @pytest.mark.asyncio
 async def test_one_malformed_station_does_not_blank_the_rest(capsys):
-    """Per-record degradation (R3): a station missing stationId, and a station
+    """Per-record degradation (R3): a station missing a label, and a station
     with one malformed event, must not take down the good data."""
     payload = {"stations": [
-        {"label": "no station id", "events": []},                       # bad station
+        {"stationId": "no-label", "events": []},                        # bad station
         {"stationId": "broken", "label": "Bad Events", "events": [
             {"utc": "2026-06-06T04:14:00.000Z", "kind": "slack"},       # no speedKn
             {"utc": "2026-06-06T05:40:00.000Z", "kind": "flood", "speedKn": 4.1},
@@ -108,10 +117,10 @@ async def test_one_malformed_station_does_not_blank_the_rest(capsys):
         PAYLOAD["stations"][0],                                          # good station
     ]}
     c = CurrentsClient("http://signalk:3000", getter=lambda url: payload)
-    good = await c.events_for_station("g")
+    good = await c.events_for_station("Gillard")
     assert [(e.kind, e.speed_knots) for e in good] == [("slack", 0.0), ("flood", 4.1)]
     # the malformed event is skipped; the station's good event survives
-    broken = await c.events_for_station("broken")
+    broken = await c.events_for_station("Bad Events")
     assert [(e.kind, e.speed_knots) for e in broken] == [("flood", 4.1)]
     assert "skipping" in capsys.readouterr().err
 
@@ -128,5 +137,5 @@ async def test_concurrent_loads_fetch_once():
         return PAYLOAD
 
     c = CurrentsClient("http://signalk:3000", getter=slow_get)
-    await asyncio.gather(c.events_for_station("g"), c.events_for_station("g"))
+    await asyncio.gather(c.events_for_station("Gillard"), c.events_for_station("Gillard"))
     assert calls["n"] == 1

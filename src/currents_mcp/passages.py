@@ -10,9 +10,9 @@ that routes through an unknown gate.
 
 Identity is split from knowledge. The vault holds only what it knows about a
 passage — transit windows and hazards, the latter paraphrased from cruising
-references (see the vault's `manifest.yaml`). A gate's name, position, provider
-and provider station id come from the station registry, keyed by the vault's
-`station` field, so a curated name or position is written once. Gates are
+references (see the vault's `manifest.yaml`). A gate's name, position and
+provider come from the station registry, keyed by the vault's `station` field,
+so a curated name or position is written once. Gates are
 therefore keyed internally by registry key; display names are presentation, and
 `find_gate`, `coverage` and the tools' suggestion strings are what a person sees.
 
@@ -50,11 +50,9 @@ class Gate:
     key: str               # registry key, e.g. "chs-dodd-narrows" — never shown to a user
     name: str
     provider: str          # "chs" | "noaa"
-    station_id: str
     latitude: float
     longitude: float
     transit_window_minutes: int
-    noaa_bin: int | None = None
     hazards: tuple[Hazard, ...] = ()
 
 
@@ -120,11 +118,9 @@ def _gate_from(path: Path, registry: dict[str, dict]) -> Gate:
             key=key,
             name=station["name"],
             provider=station["provider"],
-            station_id=str(station["providerId"]),
             latitude=float(lat),
             longitude=float(lon),
             transit_window_minutes=int(d["transit_window_minutes"]),
-            noaa_bin=station.get("providerBin"),
             hazards=hazards,
         )
     except KeyError as exc:

@@ -1,9 +1,9 @@
 from currents_mcp.currents_source import CurrentsClient
 from currents_mcp.tools import get_gate_current
 
-# /currents payload keyed by station_id (the plugin's contract). Dodd Narrows is
-# 63aef1866a2b9417c035030f; the slack at 09:14Z is preceded by an ebb and followed
-# by a flood, so its direction label is ebb->flood.
+# /currents payload correlated by station label. Dodd Narrows' slack at 09:14Z
+# is preceded by an ebb and followed by a flood, so its direction label is
+# ebb->flood.
 PAYLOAD = {"stations": [
     {"stationId": "63aef1866a2b9417c035030f", "label": "Dodd Narrows",
      "lat": 49.1344, "lon": -123.8171, "floodDir": 340, "ebbDir": 160,
@@ -93,10 +93,13 @@ async def test_get_gate_current_omits_hazards_when_none(monkeypatch):
     """
     from currents_mcp.passages import GATES, Gate
     plain = Gate(key="chs-testless-narrows", name="Testless Narrows", provider="chs",
-                 station_id="63aef1866a2b9417c035030f",  # Dodd's, so PAYLOAD resolves
                  latitude=49.1344, longitude=-123.8171, transit_window_minutes=30)
     monkeypatch.setitem(GATES, plain.key, plain)
-    currents = _client(PAYLOAD)
+    # Correlation is by name now, so the payload's label must match the
+    # synthetic gate's name (not "Dodd Narrows") — reuse Dodd's event data
+    # under a distinct label so this doesn't collide with the real gate,
+    # which does carry curated hazards.
+    currents = _client(_dodd_with(label=plain.name))
     result = await get_gate_current(currents, plain.name, date="2026-05-24")
     assert "hazards" not in result
     assert "hazards_display" not in result
@@ -113,7 +116,7 @@ async def test_get_gate_current_unknown_name_suggests():
 
 
 # Boundary Pass (NOAA station PUG1717) now comes from the same /currents resource;
-# the MCP no longer cares about the provider — it just looks up by station_id.
+# the MCP no longer cares about the provider — it just looks up by name.
 BOUNDARY_PAYLOAD = {"stations": [
     {"stationId": "PUG1717", "label": "Boundary Pass",
      "lat": 48.6912, "lon": -123.2450, "events": [
