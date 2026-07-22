@@ -28,6 +28,8 @@ from pathlib import Path
 
 import yaml
 
+from currents_mcp.currents_source import _norm
+
 _HAZARD_STATES = {"flood", "ebb", "any"}
 
 # Station identity (name, position, provider, provider id) lives in
@@ -147,8 +149,11 @@ def _load(root: Path,
         # ponytail: display names are also required to be unique, so find_gate
         # stays unambiguous. Keys allow collisions (Juan de Fuca and Johnstone
         # Strait each have a Race Passage); when one lands, disambiguate with
-        # the registry's `context` rather than relaxing this.
-        clash = next((g for g in gates.values() if g.name == gate.name), None)
+        # the registry's `context` rather than relaxing this. Normalized the
+        # same way as the plugin-correlation join key (_norm), so names that
+        # differ only by case/whitespace don't slip past this guard and
+        # collapse to one correlation-cache entry.
+        clash = next((g for g in gates.values() if _norm(g.name) == _norm(gate.name)), None)
         if clash:
             raise ValueError(f"{path.name}: gate name {gate.name!r} already "
                              f"defined by {origin[clash.key]}")

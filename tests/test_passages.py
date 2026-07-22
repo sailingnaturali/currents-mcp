@@ -69,13 +69,13 @@ def test_duplicate_alias_across_destinations_is_rejected(tmp_path):
 # without depending on which twenty stations the real registry happens to hold.
 _FAKE_REGISTRY = {
     "chs-real-gate": {"name": "Real Gate", "position": [49.0, -123.0],
-                      "provider": "chs", "providerId": "abc123"},
+                      "provider": "chs"},
     # Two keys, one display name — representable in the registry, and exactly
     # what the display-name guard in _load exists to reject.
     "chs-race-passage": {"name": "Race Passage", "position": [48.3, -123.5],
-                         "provider": "chs", "providerId": "aaa"},
+                         "provider": "chs"},
     "chs-johnstone-race-passage": {"name": "Race Passage", "position": [50.5, -126.5],
-                                   "provider": "chs", "providerId": "bbb"},
+                                   "provider": "chs"},
 }
 
 
@@ -95,6 +95,24 @@ def test_duplicate_gate_name_across_files_is_rejected(tmp_path):
     (tmp_path / "destinations.yaml").write_text("[]\n")
     with pytest.raises(ValueError, match="already defined by"):
         _load(tmp_path, _FAKE_REGISTRY)
+
+
+def test_duplicate_gate_name_differing_only_by_case_is_rejected(tmp_path):
+    # The uniqueness guard must use the same normalization (_norm: casefold +
+    # strip) as the plugin-correlation join key, or two registry entries whose
+    # names differ only by case/whitespace would pass this guard yet collapse
+    # to one correlation-cache entry, silently sharing plugin events.
+    registry = {
+        "chs-race-passage": {"name": "Race Passage", "position": [48.3, -123.5],
+                             "provider": "chs"},
+        "chs-race-passage-2": {"name": " race passage ", "position": [48.3, -123.5],
+                               "provider": "chs"},
+    }
+    _write_gate(tmp_path, "a-race.md", "chs-race-passage")
+    _write_gate(tmp_path, "b-race.md", "chs-race-passage-2")
+    (tmp_path / "destinations.yaml").write_text("[]\n")
+    with pytest.raises(ValueError, match="already defined by"):
+        _load(tmp_path, registry)
 
 
 def test_gate_with_no_registry_entry_is_rejected(tmp_path):
