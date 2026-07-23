@@ -32,7 +32,7 @@ from currents_mcp.currents_source import _norm
 
 _HAZARD_STATES = {"flood", "ebb", "any"}
 
-# Station identity (name, position, provider, provider id) lives in
+# Station identity (name, position, provider) lives in
 # @sailingnaturali/station-corrections, which publishes it as a plain JSON
 # artifact on ./data/* precisely so non-JavaScript consumers can read it without
 # npm. Vendored here; test_registry_drift.py fails when it lags the sibling repo.
