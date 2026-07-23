@@ -132,3 +132,29 @@ async def test_get_gate_current_boundary_pass():
     result = await get_gate_current(currents, "Boundary Pass", date="2026-05-24")
     assert result["name"] == "Boundary Pass"
     assert result["slack_windows"][0]["utc"] == "2026-05-24T09:00:00Z"
+
+
+MALIBU_PAYLOAD = {"stations": [
+    {"stationId": "chs-malibu-rapids", "label": "Malibu Rapids", "lat": 50.1626, "lon": -123.8515,
+     "derived": True, "source": "harmonic", "live": False, "events": [
+         {"utc": "2026-03-11T05:30:00Z", "kind": "slack", "speedKn": 0.0},
+         {"utc": "2026-03-11T11:00:00Z", "kind": "slack", "speedKn": 0.0},
+     ]},
+]}
+
+
+async def test_derived_gate_states_slack_timing_only():
+    """Malibu is a derived gate: slack windows are served, but the state is marked
+    derived and never claims a speed or a flood/ebb set."""
+    currents = _client(MALIBU_PAYLOAD)
+    result = await get_gate_current(currents, "Malibu Rapids", date="2026-03-11")
+
+    assert result["name"] == "Malibu Rapids"
+    assert result["derived"] is True
+    # Slack windows present, labelled cleanly (no "(slack, slack)").
+    assert result["slack_windows"]
+    assert "(slack)" in result["slack_windows"][0]["display"]
+    assert ", slack)" not in result["slack_windows"][0]["display"]
+    # No fabricated set: the sets line states it's derived/unavailable, not a bearing.
+    assert "derived_display" in result
+    assert result["flood_dir_true"] is None and result["ebb_dir_true"] is None

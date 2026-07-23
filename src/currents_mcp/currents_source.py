@@ -54,6 +54,7 @@ class CurrentsClient:
         self._getter = getter or self._http_get
         self._cache: dict[str, list[CurrentEvent]] | None = None
         self._dirs: dict[str, dict] = {}
+        self._derived: dict[str, bool] = {}
         self._lock = asyncio.Lock()
         # Distinguishes "service unreachable" from "no data for this station"
         # so the agent can say which one happened (R1).
@@ -88,6 +89,7 @@ class CurrentsClient:
             # not blank the dataset — skip it, warn, keep serving the rest.
             cache: dict[str, list[CurrentEvent]] = {}
             dirs: dict[str, dict] = {}
+            derived: dict[str, bool] = {}
             for s in payload.get("stations", []):
                 name = s.get("label")
                 if not name:
@@ -106,7 +108,10 @@ class CurrentsClient:
                 events.sort(key=lambda e: e.utc)
                 cache[key] = events
                 dirs[key] = _dirs_from_station(s)
-            self._cache, self._dirs = cache, dirs
+                # A derived gate (Malibu) carries slack timing only — no speed and
+                # no flood/ebb axis. Consumers must not imply a current vector.
+                derived[key] = bool(s.get("derived"))
+            self._cache, self._dirs, self._derived = cache, dirs, derived
             return self._cache
 
     async def events_for_station(self, name: str) -> list[CurrentEvent]:
@@ -115,3 +120,8 @@ class CurrentsClient:
     async def dirs_for_station(self, name: str) -> dict:
         await self._load()
         return self._dirs.get(_norm(name), {})
+
+    async def derived_for_station(self, name: str) -> bool:
+        """True when the gate is a derived slack (timing only, no speed/set)."""
+        await self._load()
+        return self._derived.get(_norm(name), False)

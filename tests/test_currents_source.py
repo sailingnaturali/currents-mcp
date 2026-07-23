@@ -139,3 +139,22 @@ async def test_concurrent_loads_fetch_once():
     c = CurrentsClient("http://signalk:3000", getter=slow_get)
     await asyncio.gather(c.events_for_station("Gillard"), c.events_for_station("Gillard"))
     assert calls["n"] == 1
+
+
+@pytest.mark.asyncio
+async def test_derived_flag_captured_per_station():
+    """A derived gate (Malibu) is marked derived:true in the payload; its slack
+    events still parse, but consumers must know it carries no speed/direction."""
+    payload = {"stations": [
+        {"stationId": "chs-malibu-rapids", "label": "Malibu Rapids", "lat": 50.16, "lon": -123.85,
+         "derived": True, "events": [
+            {"utc": "2026-03-11T05:30:00.000Z", "kind": "slack", "speedKn": 0}]},
+        {"stationId": "g", "label": "Gillard", "lat": 50.39, "lon": -125.15,
+         "floodDir": 160, "ebbDir": 340, "events": []},
+    ]}
+    c = CurrentsClient("http://signalk:3000", getter=lambda url: payload)
+    assert await c.derived_for_station("Malibu Rapids") is True
+    assert await c.derived_for_station("Gillard") is False
+    # slack events still available
+    ev = await c.events_for_station("Malibu Rapids")
+    assert [(e.kind, e.speed_knots) for e in ev] == [("slack", 0.0)]

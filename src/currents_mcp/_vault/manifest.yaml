@@ -109,3 +109,10 @@ sources:
   - title: Waggoner Cruising Guide; Canadian Boating
     used_for: Route and gate validation (PNW cruising references).
     license: Editorial — fact validation only
+  - title: Waggoner Cruising Guide; Points North seminar
+    used_for: >-
+      Malibu Rapids slack offset (Point Atkinson HW +25 / LW +35 min),
+      transit-at-slack guidance, and peak-speed range. Secondary/community
+      sources — no CHS current table is published for this pass; confidence
+      noted in the pass file. Facts paraphrased, no verbatim text.
+    license: Editorial — used under fair-use paraphrase, no text reproduced

@@ -67,8 +67,11 @@ def _direction_label(prev_kind: str | None, next_kind: str | None) -> str:
 
 
 def _fmt_slack(utc: datetime, direction: str) -> str:
-    """e.g. 'Sun 21:14 PDT (slack, ebb→flood)'."""
+    """e.g. 'Sun 21:14 PDT (slack, ebb→flood)'. When the direction is unknown
+    (a derived gate has no flood/ebb neighbours) it reads just '(slack)'."""
     local = utc.astimezone(DISPLAY_TZ)
+    if direction == "slack":
+        return f"{local:%a %H:%M} {local:%Z} (slack)"
     return f"{local:%a %H:%M} {local:%Z} (slack, {direction})"
 
 
@@ -199,6 +202,16 @@ async def _gate_current_state(
         **_gate_sets(await currents.dirs_for_station(gate.name)),
         **_gate_hazards(gate),
     }
+    # A derived gate (Malibu) has no current station: slack timing only, no speed
+    # and no flood/ebb set. Mark it so the agent presents windows honestly and
+    # never implies a current vector.
+    if await currents.derived_for_station(gate.name):
+        out["derived"] = True
+        out["derived_display"] = (
+            "Slack timing only — this pass has no current station, so its slack is "
+            "derived from a reference tide port's high/low water. No current speed "
+            "or set is predicted."
+        )
     if not events and currents.unreachable:
         # Empty because the service is down, not because there's no data (R1).
         out["service_display"] = (

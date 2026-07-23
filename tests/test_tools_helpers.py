@@ -48,6 +48,13 @@ def test_fmt_slack_string():
     assert _fmt_slack(utc, "ebb→flood") == "Sun 06:14 PDT (slack, ebb→flood)"
 
 
+def test_fmt_slack_omits_redundant_direction_when_unknown():
+    # A derived gate has no flood/ebb events, so the direction is just "slack" —
+    # don't render the sloppy "(slack, slack)".
+    utc = datetime(2026, 5, 24, 13, 14, tzinfo=timezone.utc)
+    assert _fmt_slack(utc, "slack") == "Sun 06:14 PDT (slack)"
+
+
 def test_haversine_zero_distance():
     assert _haversine_nm(48.42, -123.37, 48.42, -123.37) == 0.0
 
