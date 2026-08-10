@@ -84,6 +84,21 @@ sources:
     url: https://racerocks.ca/tidal-currents-and-current-measurement-at-race-rocks/
     used_for: Corroborating Race Rocks hazard geography and measured current peaks.
     license: Editorial — used under fair-use paraphrase, no text reproduced
+  - title: 'Gypsy Soul Adventures — Sechelt Rapids transit information'
+    url: https://gypsysouladventures.ca/boating-resources/sechelt-rapids-transit/
+    used_for: >-
+      Sechelt Rapids set directions (flood ~150° from Egmont toward Narrows
+      Inlet, ebb ~330° toward Jervis) and the recommended slack-transit routes.
+      Secondary cruiser reference; corroborates the CHS station's flood/ebb sets.
+    license: Editorial — used under fair-use paraphrase, no text reproduced
+  - title: 'American Whitewater — Skookumchuck Rapids (Sechelt Narrows)'
+    url: https://www.americanwhitewater.org/content/River/view/river-detail/11449/main
+    used_for: >-
+      Sechelt Rapids standing-wave mechanics — the Roland Point wave forms on
+      the flood over a bedrock ledge and begins within minutes of low-water
+      slack; channel/flow scale (eight islets, ~200 billion gallons on a 9-foot
+      exchange). Facts paraphrased, no verbatim text.
+    license: Editorial — used under fair-use paraphrase, no text reproduced
   - title: 'Wikipedia — "Cordero Channel"'
     url: https://en.wikipedia.org/wiki/Cordero_Channel
     used_for: >-
