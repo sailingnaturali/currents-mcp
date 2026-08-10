@@ -1,5 +1,5 @@
 import pytest
-from currents_mcp.currents_source import CurrentsClient
+from currents_mcp.currents_source import CACHE_TTL_SECONDS, CurrentsClient
 from currents_mcp.providers import CurrentEvent
 
 PAYLOAD = {"stations": [
@@ -158,3 +158,59 @@ async def test_derived_flag_captured_per_station():
     # slack events still available
     ev = await c.events_for_station("Malibu Rapids")
     assert [(e.kind, e.speed_knots) for e in ev] == [("slack", 0.0)]
+
+
+@pytest.mark.asyncio
+async def test_cache_expires_so_a_long_lived_process_stops_serving_yesterday():
+    """Without a TTL the payload was cached for the life of the process.
+
+    These are tide/current predictions: an MCP server running past midnight
+    would keep answering with yesterday's slack windows, at full confidence and
+    with no way for the agent to tell. The plugin refreshes hourly, so a TTL
+    well inside that bounds staleness without adding meaningful fetch cost.
+    """
+    now = {"t": 1000.0}
+    calls = {"n": 0}
+
+    async def fake_get(url):
+        calls["n"] += 1
+        return PAYLOAD
+
+    c = CurrentsClient("http://signalk:3000", getter=fake_get, clock=lambda: now["t"])
+    await c.events_for_station("Gillard")
+    now["t"] += 60                                   # a minute later: still fresh
+    await c.events_for_station("Gillard")
+    assert calls["n"] == 1
+
+    now["t"] += CACHE_TTL_SECONDS                    # past the window
+    await c.events_for_station("Gillard")
+    assert calls["n"] == 2
+
+
+@pytest.mark.asyncio
+async def test_expired_cache_survives_a_failed_refresh():
+    """Stale predictions beat none when the boat loses the currents service.
+
+    Before the TTL existed, a loaded cache served forever, so losing SignalK
+    left the agent with usable (if ageing) data. A naive TTL would throw that
+    away and start answering empty the moment a refresh failed - strictly worse
+    underway. Keep serving what we have and flag `unreachable`; the passage
+    lead only reports the service as down when there are no windows to show.
+    """
+    now = {"t": 1000.0}
+    state = {"fail": False}
+
+    async def flaky_get(url):
+        if state["fail"]:
+            raise RuntimeError("connection refused")
+        return PAYLOAD
+
+    c = CurrentsClient("http://signalk:3000", getter=flaky_get, clock=lambda: now["t"])
+    assert await c.events_for_station("Gillard")     # warm it
+
+    state["fail"] = True
+    now["t"] += CACHE_TTL_SECONDS + 1
+    ev = await c.events_for_station("Gillard")
+
+    assert [e.kind for e in ev] == ["slack", "flood"]   # stale, still served
+    assert c.unreachable is True

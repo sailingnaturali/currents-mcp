@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import sys
+import time
 from typing import Awaitable, Callable
 
 import httpx
@@ -42,17 +43,29 @@ def _dirs_from_station(s: dict) -> dict:
     }
 
 
+# How long a fetched /currents payload stays good. These are predictions, not
+# live readings, so this is about the horizon rolling rather than values moving:
+# the plugin refreshes hourly, and an MCP server is a long-lived process, so
+# without a bound one running past midnight answers yesterday's slack windows at
+# full confidence. Well inside the plugin's poll, and a refetch is one local HTTP
+# GET, so the cost of being wrong here is a few extra requests an hour.
+CACHE_TTL_SECONDS = 15 * 60
+
+
 class CurrentsClient:
-    """Fetches /currents once per process lifetime cheaply (in-memory), maps
-    station name -> events (+ direction metadata). `getter` is injectable for tests."""
+    """Fetches /currents (in-memory, TTL-bounded), maps station name -> events
+    (+ direction metadata). `getter` and `clock` are injectable for tests."""
 
     def __init__(
         self, signalk_url: str,
         getter: Callable[[str], Awaitable[dict] | dict] | None = None,
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self._url = signalk_url.rstrip("/") + CURRENTS_PATH
         self._getter = getter or self._http_get
+        self._clock = clock
         self._cache: dict[str, list[CurrentEvent]] | None = None
+        self._cached_at: float = 0.0
         self._dirs: dict[str, dict] = {}
         self._derived: dict[str, bool] = {}
         self._lock = asyncio.Lock()
@@ -68,11 +81,14 @@ class CurrentsClient:
             resp.raise_for_status()
             return resp.json()
 
+    def _fresh(self) -> bool:
+        return self._cache is not None and self._clock() - self._cached_at < CACHE_TTL_SECONDS
+
     async def _load(self) -> dict[str, list[CurrentEvent]]:
-        if self._cache is not None:
+        if self._fresh():
             return self._cache
         async with self._lock:                  # two tool calls -> one fetch (R6)
-            if self._cache is not None:
+            if self._fresh():
                 return self._cache
             try:
                 result = self._getter(self._url)
@@ -81,9 +97,18 @@ class CurrentsClient:
                 # signalk-currents down/unreachable: degrade to no data (gate
                 # tools show empty windows) rather than crashing the tool. Not
                 # cached, so a later call retries. Logged to stderr (stdio MCP).
+                #
+                # If we already hold a payload, serve it stale rather than
+                # nothing: before this cache had a TTL, a loaded process kept
+                # answering forever, so losing SignalK underway still left the
+                # agent usable predictions. Expiring into an empty answer would
+                # be strictly worse at sea. `unreachable` still flips, and the
+                # passage lead only reports the service down when it also has no
+                # windows to show. _cached_at is left alone so the next call
+                # retries instead of waiting out another TTL.
                 print(f"currents-mcp: /currents fetch failed: {e}", file=sys.stderr)
                 self.unreachable = True
-                return {}
+                return self._cache if self._cache is not None else {}
             self.unreachable = False
             # Per-record degradation (R3): one malformed station or event must
             # not blank the dataset — skip it, warn, keep serving the rest.
@@ -112,6 +137,7 @@ class CurrentsClient:
                 # no flood/ebb axis. Consumers must not imply a current vector.
                 derived[key] = bool(s.get("derived"))
             self._cache, self._dirs, self._derived = cache, dirs, derived
+            self._cached_at = self._clock()
             return self._cache
 
     async def events_for_station(self, name: str) -> list[CurrentEvent]:
