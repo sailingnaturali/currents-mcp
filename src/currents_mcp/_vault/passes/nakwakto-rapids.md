@@ -12,20 +12,22 @@ hazards:
       the preferred one.
   - state: flood
     text: >-
-      Flood sets east, inward through the rapids into Seymour Inlet, peaking
-      near 11.5 knots. Arriving early on the building flood means being carried
+      Flood sets about 355° through the rapids themselves, inward toward Seymour
+      Inlet, peaking near 11.5 knots. Do not carry the Slingsby Channel sets
+      into the rapids: the channel runs east and west, the rapids run roughly
+      north and south. Arriving early on the building flood means being carried
       onto Turret Rock and its reefs with no way back out — inferred from the
       channel geometry, not a published caution.
   - state: ebb
     text: >-
-      Ebb is the stronger stream, near 14.5 knots, setting west and out into
-      Slingsby Channel. Slingsby drains Seymour Inlet, Nugent Sound and Belize
-      Inlet, so the outflow is heavy: against a west or southwest wind the water
-      turns very rough and the plume spreads that rough water seaward, as far as
-      the Storm Islands. A west wind over a strong ebb raises a steep short sea
-      at the Outer Narrows entrance that is dangerous to small craft, and once a
-      vessel is carried into the Outer Narrows on that ebb it is very hard to
-      turn or back out.
+      Ebb is the stronger stream, near 14.5 knots, setting about 175° out of the
+      rapids and then west down Slingsby Channel. Slingsby drains Seymour Inlet,
+      Nugent Sound and Belize Inlet, so the outflow is heavy: against a west or
+      southwest wind the water turns very rough and the plume spreads that rough
+      water seaward, as far as the Storm Islands. A west wind over a strong ebb
+      raises a steep short sea at the Outer Narrows entrance that is dangerous
+      to small craft, and once a vessel is carried into the Outer Narrows on
+      that ebb it is very hard to turn or back out.
 ---
 The sole entrance to the Seymour and Belize Inlet complex, at the east end of
 Slingsby Channel around Bramham Island. Two gates sit on one transit and they do
@@ -38,7 +40,9 @@ marinas or services anywhere in the area; arrive self-sufficient.
 
 CHS 2026 predictions peak at 14.3 knots ebbing and 11.3 flooding — the ebb is the
 faster stream by about three knots, which is the opposite of most gates on this
-coast. The widely repeated claim that this is the fastest navigable tidal current
+coast. The 355°/175° sets above are the current station's own reference
+directions; Sailing Directions publishes no bearings for the rapids, and the
+east-on-the-flood, west-on-the-ebb description belongs to Slingsby Channel. The widely repeated claim that this is the fastest navigable tidal current
 in the world at 16 or 17 knots has no primary source behind it; CHS's own
 language is that the rate is among the highest anywhere, at 14½ knots. Sailing
 Directions describes no overfalls or whirlpools here by name — those accounts are
