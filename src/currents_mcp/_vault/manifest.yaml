@@ -6,7 +6,11 @@ sources:
     url: https://api-sine.dfo-mpo.gc.ca/api/v1
     used_for: >-
       Station IDs, coordinates, and flood/ebb set directions for BC tidal gates.
-    verified: '2026-05-24'
+      Also the 2026 predicted peak flood/ebb rates, set directions and slack
+      windows quoted for the four national gates — Nakwakto Rapids, Quatsino
+      Narrows, Masset Sound and Great Bras d'Or — computed from the published
+      prediction series, not from any secondary source.
+    verified: '2026-08-15'
     license: Government of Canada — Open Government Licence – Canada
   - title: NOAA CO-OPS Tidal Current Predictions
     url: https://tidesandcurrents.noaa.gov/
@@ -38,10 +42,57 @@ sources:
       Johnstone Strait - Central (ebb dominance and residual flow, the
       Kelsey Bay–Port Neville rip caution, cross-channel variation, traffic
       separation scheme, Robson Bight).
+
+      Also the primary source for Nakwakto Rapids (six-minute slack, the
+      Turret Rock impingement, the Outer Narrows as a second gate, the Slingsby
+      outflow plume, Treadwell Bay as the waiting anchorage) and for Quatsino
+      Narrows (fairway width and depths, the Sorenson Point shoal spit, flood
+      and ebb sets, the Makwazniht and Ohlsen Point rips, the Quattische
+      back-eddy, the log-boom caution, the south-lags-north turn).
     verified: '2023-07'
     license: Government of Canada — reproducible under the Open Government Licence – Canada
     note: >-
-      A 2025/02 edition exists and has not been diffed against this one.
+      A 2025/02 edition exists and has not been diffed against this one. The
+      Nakwakto material was read in the 2024/06 edition (Ch. 4) and the Quatsino
+      material in the 2022/11 edition (Ch. 7); paragraph numbering moves between
+      editions, so cite the volume rather than a paragraph. This volume — not
+      PAC 205 — covers both Slingsby Channel and the west coast of Vancouver
+      Island; PAC 205 begins at Cape Caution.
+  - title: CHS Sailing Directions PAC203 — Cape Caution to Stewart and Haida Gwaii
+    url: https://waves-vagues.dfo-mpo.gc.ca/library-bibliotheque/chs-shc-PAC203-eng-202501-41274738.pdf
+    used_for: >-
+      Primary source for Masset Sound — stream rates and the brevity of slack,
+      the Cook Point constriction and drying spit, the Outer and Inner Bars and
+      Venture Banks, the Watun River bank and the advice to favour the east
+      shore, the caution against entering Masset Harbour during the strength of
+      the streams, and the note that Chart 3895's tidal information is
+      approximate.
+    verified: '2025-01'
+    license: Government of Canada — reproducible under the Open Government Licence – Canada
+    note: >-
+      This material was previously PAC 206 (Hecate Strait, Dixon Entrance,
+      Portland Inlet and Adjacent Waters and Haida Gwaii, ed. 2022/06), which is
+      superseded and off the CHS index; the Masset Sound tidal-stream wording is
+      unchanged between the two. A 2026/07 edition of PAC 203 is listed and has
+      not been diffed against this one.
+  - title: CHS Sailing Directions ATL104 — Cape North to Cape Canso (including Bras d'Or Lake)
+    url: https://waves-vagues.dfo-mpo.gc.ca/library-bibliotheque/chs-shc-ATL104-eng-202603-4132187x.pdf
+    used_for: >-
+      Primary source for Great Bras d'Or — the phase-inverted stream and the
+      referral to the current tables for slack, the 4 to 5 knot normal rate and
+      the 6-knot high-lake case, the northward set past Carey Point and the
+      eastward set of the inward stream, the Carey Point bar, Seal Island Bridge
+      clearance and Seal Reefs, the tide ranges that explain the basin lag, and
+      Kellys Cove as shelter out of the stream.
+    verified: '2026-03'
+    license: Government of Canada — reproducible under the Open Government Licence – Canada
+  - title: Pacific Pilotage Authority — BC Locations' Controlling Depths and Safe Operating Parameters
+    url: https://www.ppa.gc.ca/standard/pilotage/2024-02/Web%20Page%20Controlling%20Depths%20and%20Safe%20Operating%20Parameters%20for%20Berths_20240209_0.pdf
+    used_for: >-
+      Quatsino Narrows pilotage limits — daylight-slack transit, high-water
+      slack only for the deeper draught, and the maximum length and beam.
+    verified: '2024-02'
+    license: Government of Canada agency publication — paraphrased, no text reproduced
   - title: DFO Pacific Marine Science Report 81-22 — Tidal Currents in Johnstone Strait
     url: https://waves-vagues.dfo-mpo.gc.ca/Library/58804.pdf
     used_for: >-

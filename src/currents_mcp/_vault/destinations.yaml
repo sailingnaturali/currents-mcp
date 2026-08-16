@@ -93,6 +93,35 @@
   gates: [chs-tillicum-bridge]
   route_note: Above Victoria Harbour; the Gorge reverses at the Tillicum narrows.
 
+- destination: Seymour and Belize Inlets
+  aliases: [seymour inlet, belize inlet, nakwakto, nakwakto rapids, slingsby channel, treadwell bay]
+  gates: [chs-nakwakto-rapids]
+  route_note: >-
+    Two gates on one run — the Outer Narrows first, then Nakwakto, whose slack
+    is about six minutes. Wait it out in Treadwell Bay.
+
+- destination: Holberg and Rupert Inlets
+  # "coal harbour" is Vancouver's — the BC one on Holberg Inlet loses the alias.
+  aliases: [quatsino, quatsino sound, quatsino narrows, holberg inlet, rupert inlet]
+  gates: [chs-quatsino-narrows]
+  route_note: >-
+    The narrows is the only way through to the inner inlets. A mile and a half
+    long, so you enter on the turn rather than clearing it inside the slack.
+
+- destination: Masset Inlet
+  aliases: [masset, masset sound, masset channel, masset inlet, port clements, graham island]
+  gates: [chs-masset-sound]
+  route_note: >-
+    Cross the bar in settled northerly weather, carry the fair current up the
+    sound, and meet the Cook Point pinch near slack.
+
+- destination: Bras d'Or Lakes
+  aliases: [bras dor, bras d'or, bras d'or lakes, baddeck, great bras d'or, big bras d'or]
+  gates: [chs-great-bras-dor]
+  route_note: >-
+    Sea entrance from Sydney Bight; slack comes hours after high or low water,
+    so read the current table. St. Peters Canal is the lock alternative.
+
 - destination: Sooke and West Juan de Fuca
   aliases: [sooke, sooke basin, port renfrew, west juan de fuca, juan de fuca]
   gates: [chs-race-passage, chs-juan-de-fuca-east]
