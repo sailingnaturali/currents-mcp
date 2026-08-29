@@ -33,9 +33,9 @@ from currents_mcp.currents_source import _norm
 _HAZARD_STATES = {"flood", "ebb", "any"}
 
 # Station identity (name, position, provider) lives in
-# @sailingnaturali/station-corrections, which publishes it as a plain JSON
-# artifact on ./data/* precisely so non-JavaScript consumers can read it without
-# npm. Vendored here; test_registry_drift.py fails when it lags the sibling repo.
+# @openwaters/station-metadata, which publishes it as a plain JSON artifact on
+# ./data/* precisely so non-JavaScript consumers can read it without npm.
+# Vendored here; test_registry_drift.py fails when it lags that repo.
 _REGISTRY: dict[str, dict] = json.loads(
     (Path(__file__).parent / "_registry.json").read_text()
 )

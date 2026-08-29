@@ -1,6 +1,6 @@
 # currents-mcp
 
-MCP server exposing Pacific Northwest tidal-gate slack windows to agents. Tidal-current predictions are read from the [`signalk-currents`](https://github.com/sailingnaturali) plugin's `/currents` resource (the plugin owns CHS/NOAA fetching and caching); this server maps named gates and destination passages onto those predictions and reports next slack windows, transit windows, and recommended departure times. Tide heights come from the same SignalK server's [`signalk-tides`](https://github.com/openwatersio/signalk-tides) plugin (offline Neaps predictions) — this server makes no direct internet fetches.
+MCP server exposing Pacific Northwest tidal-gate slack windows to agents. Tidal-current predictions are read from the [`signalk-currents`](https://github.com/sailingnaturali/signalk-currents) plugin's `/currents` resource (the plugin owns CHS/NOAA fetching and caching); this server maps named gates and destination passages onto those predictions and reports next slack windows, transit windows, and recommended departure times. Tide heights come from the same SignalK server's [`signalk-tides`](https://github.com/openwatersio/signalk-tides) plugin (offline Neaps predictions) — this server makes no direct internet fetches.
 
 
 ## Tools
@@ -112,7 +112,7 @@ the next ~4 events at/after the query time are returned.
 
 Active Pass, Porlier Pass, Gabriola Passage, Hole in the Wall, Arran Rapids, Race Passage, Juan de Fuca - East, Tillicum Bridge, Calamity Point, Second Narrows, and Sechelt Rapids are addressable by name but are not yet wired into any Victoria-origin passage.
 
-Transit windows, hazard notes and destination routing live in the [`currents-vault`](https://github.com/sailingnaturali/currents-vault) (one markdown file per pass + a `destinations.yaml` routing table); each gate's identity — name, position, provider, station id — comes from [`@sailingnaturali/station-corrections`](https://github.com/sailingnaturali/station-corrections), which the vault references by key. Both are loaded at startup. The `signalk-currents` plugin must be configured with the matching station list so every gate's `station_id` is present in `/currents`. A gate whose station is missing from the payload returns no slack windows.
+Transit windows, hazard notes and destination routing live in the [`currents-vault`](https://github.com/sailingnaturali/currents-vault) (one markdown file per pass + a `destinations.yaml` routing table); each gate's identity — name, position, provider — comes from [`@openwaters/station-metadata`](https://github.com/openwatersio/station-metadata), which the vault references by key. Both are loaded at startup. The `signalk-currents` plugin must be configured with the matching station list so every gate's `station_id` is present in `/currents`. A gate whose station is missing from the payload returns no slack windows.
 
 Gates with curated hazard notes (the northern rapids — Gillard, Dent, Beazley, Seymour) return a `hazards` list and a state-first `hazards_display` from `get_gate_current`, `currents_near`, and `plan_passage` — whirlpools, holes, sets, and deflections labelled by the current state (flood/ebb) they occur in.
 
